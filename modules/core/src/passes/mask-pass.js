@@ -46,7 +46,7 @@ export default class MaskPass extends Pass {
     gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
     gl.stencilFunc(gl.ALWAYS, writeValue, 0xffffffff);
     gl.clearStencil(clearValue);
-
+    gl.clear(gl.STENCIL_BUFFER_BIT);
     this.model.setDrawMode(GL.TRIANGLE_FAN);
     this.model.draw();
     // TODO - draw into the stencil buffers of the two framebuffers
