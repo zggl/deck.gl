@@ -21,6 +21,7 @@
 /* eslint-disable guard-for-in */
 import Attribute from './attribute';
 import log from '../utils/log';
+import {Transform, Buffer} from '@luma.gl/core';
 
 import AttributeTransitionManager from './attribute-transition-manager';
 
@@ -129,6 +130,8 @@ export default class AttributeManager {
       id: `${id}-transitions`
     });
 
+    this.transforms = {};
+
     // For debugging sanity, prevent uninitialized members
     Object.seal(this);
   }
@@ -217,9 +220,11 @@ export default class AttributeManager {
     numInstances,
     bufferLayout,
     transitions,
+    transforms,
     props = {},
     buffers = {},
-    context = {}
+    context = {},
+    simulations
   } = {}) {
     // keep track of whether some attributes are updated
     let updated = false;
@@ -260,10 +265,52 @@ export default class AttributeManager {
       this.stats.get('Update Attributes').timeEnd();
     }
 
+    if (transforms) {
+      for (const transformId in transforms) {
+        if (!this.transforms[transformId]) {
+          const {attributes, vs, buffers, feedbackBuffers, varyings, onUpdate} = transforms[transformId];
+          const transformAttributes = {};
+          const transformBuffers = {};
+          for (const attributeName in attributes) {
+            const layerAttributeName = attributes[attributeName];
+            const attribute = this.attributes[layerAttributeName];
+            transformAttributes[attributeName] = attribute;
+            const buffer = attribute.getBuffer();
+            transformBuffers[attributeName] = buffer;
+            for (const bufferName in buffers) {
+              if (buffers[bufferName] === attributeName) {
+                transformBuffers[bufferName] = new Buffer(this.gl, buffer.byteLength);
+              }
+            }
+          }
+
+          const transformFeedbackBuffers = {};
+          for (const varyingName in feedbackBuffers) {
+            const bufferName = feedbackBuffers[varyingName];
+            transformFeedbackBuffers[varyingName] = transformBuffers[bufferName];
+          }
+
+          this.transforms[transformId] = {
+            attributes: transformAttributes,
+            buffers: transformBuffers,
+            transform: new Transform(this.gl, {
+              vs,
+              varyings,
+              elementCount: numInstances,
+              sourceBuffers: transformBuffers,
+              feedbackBuffers: transformFeedbackBuffers
+            }),
+            onUpdate
+          }
+        }
+      }
+    }
+
     this.attributeTransitionManager.update({
       attributes: this.attributes,
       numInstances,
-      transitions
+      transitions,
+      simulations
     });
   }
 
@@ -274,6 +321,19 @@ export default class AttributeManager {
     const transitionUpdated = attributeTransitionManager.setCurrentTime(timestamp);
     this.needsRedraw = this.needsRedraw || transitionUpdated;
     return transitionUpdated;
+  }
+
+  updateTransforms(timestamp) {
+    const transformedAttributes = {};
+    for (const transformId in this.transforms) {
+      const {attributes, buffers, transform, onUpdate} = this.transforms[transformId];
+      onUpdate(transform, attributes, buffers)
+      transform.run();
+      Object.assign(transformedAttributes, attributes);
+      this.needsRedraw = this.needsRedraw || 'Transform run';
+    }
+
+    return transformedAttributes;
   }
 
   /**

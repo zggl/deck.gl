@@ -390,6 +390,7 @@ export default class Layer extends Component {
       bufferLayout,
       props,
       transitions: props.transitions,
+      transforms: props.transforms,
       buffers: props,
       context: this,
       // Don't worry about non-attribute props
@@ -411,6 +412,17 @@ export default class Layer extends Component {
     const attributeManager = this.getAttributeManager();
     if (attributeManager) {
       attributeManager.updateTransition(this.context.time);
+    }
+  }
+
+  updateTransforms() {
+    const attributeManager = this.getAttributeManager();
+    if (attributeManager) {
+      const transformedAttributes = attributeManager.updateTransforms(this.context.time);
+      const models = this.getModels();
+      for (let i = 0, len = models.length; i < len; ++i) {
+        this._setModelAttributes(models[i], transformedAttributes);
+      }
     }
   }
 
@@ -653,6 +665,7 @@ export default class Layer extends Component {
   drawLayer({moduleParameters = null, uniforms = {}, parameters = {}}) {
     if (!uniforms.picking_uActive) {
       this.updateTransition();
+      this.updateTransforms();
     }
 
     // TODO/ib - hack move to luma Model.draw

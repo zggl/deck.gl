@@ -276,7 +276,47 @@ const ScatterplotLayerExample = {
     pickable: true,
     radiusScale: 30,
     radiusMinPixels: 1,
-    radiusMaxPixels: 30
+    radiusMaxPixels: 30,
+    transforms: {
+      positionTransform: {
+        vs: `
+          attribute vec3 inPosition;
+          varying vec3 outPosition;
+
+          void main() {
+            outPosition = inPosition + vec3(0.0, 0.0, 1.0);
+          }
+        `,
+        attributes: {
+          inPosition: 'instancePositions'
+        },
+        feedbackBuffers: {
+          outPosition: 'outPosition'
+        },
+        buffers: {
+          outPosition: 'inPosition'
+        },
+        varyings: ['outPosition'],
+        onUpdate: (transform, attributes, buffers) => {
+          const inBuffer = buffers.inPosition;
+          const outBuffer = buffers.outPosition;
+
+          attributes.inPosition.update({buffer: outBuffer});
+
+          transform.update({
+            sourceBuffers: {
+              inPosition: inBuffer
+            },
+            feedbackBuffers: {
+              outPosition: outBuffer
+            }
+          });
+
+          buffers.inPosition = outBuffer;
+          buffers.outPosition = inBuffer;
+        }
+      }
+    }
   }
 };
 
