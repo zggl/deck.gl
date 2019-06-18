@@ -427,7 +427,13 @@ export default class Viewport {
       far
     };
 
+    const center = [opts.center[0] * 2.0 - 1.0, opts.center[1] * 2.0 - 1.0];
     this.projectionMatrix = projectionMatrix || this._createProjectionMatrix(this.projectionProps);
+    this.projectionMatrix = new Matrix4()
+      // Apply the uncentered view matrix
+      // And center it
+      .translate(new Vector3([center[0] - 0.0, center[1] - 0.0, 0.0]))
+      .multiplyRight(this.projectionMatrix);
   }
 
   _initPixelMatrices() {

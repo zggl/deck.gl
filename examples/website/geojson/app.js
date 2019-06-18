@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
 import DeckGL, {GeoJsonLayer} from 'deck.gl';
 import {scaleThreshold} from 'd3-scale';
 
@@ -9,7 +8,7 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
 // Source data GeoJSON
 const DATA_URL =
-  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/geojson/vancouver-blocks.json'; // eslint-disable-line
+  'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/san-francisco.geojson'; // eslint-disable-line
 
 export const COLOR_SCALE = scaleThreshold()
   .domain([-0.6, -0.45, -0.3, -0.15, 0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2])
@@ -29,14 +28,24 @@ export const COLOR_SCALE = scaleThreshold()
     [189, 0, 38],
     [128, 0, 38]
   ]);
-
+// 37.772228, -122.438559
 const INITIAL_VIEW_STATE = {
-  latitude: 49.254,
-  longitude: -123.13,
-  zoom: 11,
-  maxZoom: 16,
-  pitch: 45,
-  bearing: 0
+  'map-view-1': {
+    latitude: 37.772228,
+    longitude: -122.438559,
+    zoom: 11,
+    maxZoom: 16,
+    pitch: 0,
+    bearing: 0
+  },
+  'map-view-2': {
+    latitude: 37.772228,
+    longitude: -122.438559,
+    zoom: 11,
+    maxZoom: 16,
+    pitch: 0,
+    bearing: 0
+  }
 };
 
 export class App extends Component {
@@ -100,19 +109,12 @@ export class App extends Component {
   }
 
   render() {
-    const {mapStyle = 'mapbox://styles/mapbox/light-v9'} = this.props;
-
     return (
-      <DeckGL layers={this._renderLayers()} initialViewState={INITIAL_VIEW_STATE} controller={true}>
-        <StaticMap
-          reuseMaps
-          mapStyle={mapStyle}
-          preventStyleDiffing={true}
-          mapboxApiAccessToken={MAPBOX_TOKEN}
-        />
-
-        {this._renderTooltip}
-      </DeckGL>
+      <DeckGL
+        layers={this._renderLayers()}
+        initialViewState={INITIAL_VIEW_STATE}
+        controller={true}
+      />
     );
   }
 }

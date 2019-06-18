@@ -184,7 +184,9 @@ export default class ViewManager {
     }
 
     // TODO - support multiple view states
-    if ('viewState' in props) {
+    if ('viewState' in props && 'viewId' in props) {
+      this._setViewState2(props.viewState, props.viewId);
+    } else if ('viewState' in props) {
       this._setViewState(props.viewState);
     }
 
@@ -211,10 +213,10 @@ export default class ViewManager {
 
     // If viewport transition(s) are triggered during viewports update, controller(s)
     // will immediately call `onViewStateChange` which calls `viewManager.setProps` again.
-    if (this._needsUpdate) {
+    /*if (this._needsUpdate) {
       this._needsUpdate = false;
       this._rebuildViewports();
-    }
+    }*/
 
     this._isUpdating = false;
   }
@@ -253,6 +255,20 @@ export default class ViewManager {
       }
 
       this.viewState = viewState;
+    } else {
+      log.warn('setting null viewState')();
+    }
+  }
+
+  _setViewState2(viewState, viewId) {
+    if (viewState && viewId) {
+      let viewStateChanged = !deepEqual(viewState, this.viewState[viewId]);
+      viewStateChanged = true;
+      if (viewStateChanged) {
+        this.setNeedsUpdate('viewState changed');
+      }
+
+      this.viewState[viewId] = viewState;
     } else {
       log.warn('setting null viewState')();
     }

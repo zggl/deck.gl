@@ -1,8 +1,14 @@
 import GL from '@luma.gl/constants';
 import Pass from './pass';
 import {clear, setParameters, withParameters} from '@luma.gl/core';
+import MaskPass from './mask-pass';
 
 export default class LayersPass extends Pass {
+  constructor(gl, props = {}) {
+    super(gl, props);
+    this.maskPasses = {};
+  }
+
   render(params) {
     const gl = this.gl;
 
@@ -34,6 +40,12 @@ export default class LayersPass extends Pass {
     viewports.forEach((viewportOrDescriptor, i) => {
       const viewport = this.getViewportFromDescriptor(viewportOrDescriptor);
       const view = views && views[viewport.id];
+      if (view) {
+        if (!this.maskPasses[view.id]) {
+          this.maskPasses[view.id] = new MaskPass(this.gl, {contour: view.props.contour});
+        }
+        this.maskPasses[view.id].render();
+      }
 
       // Update context to point to this viewport
       onViewportActive(viewport);

@@ -478,7 +478,9 @@ export default class Deck {
       autoResizeDrawingBuffer,
       gl,
       onCreateContext: opts =>
-        createGLContext(Object.assign({}, glOptions, opts, {canvas: this.canvas, debug})),
+        createGLContext(
+          Object.assign({}, glOptions, opts, {canvas: this.canvas, debug, stencil: true})
+        ),
       onInitialize: this._onRendererInitialized,
       onRender: this._onRenderFrame,
       onBeforeRender: props.onBeforeRender,
@@ -495,11 +497,26 @@ export default class Deck {
   // Get the view descriptor list
   _getViews(props) {
     // Default to a full screen map view port
-    let views = props.views || [new MapView({id: 'default-view'})];
+    let views = props.views || [
+      new MapView({
+        id: 'map-view-1',
+        center: [0.25, 0.25],
+        latlon: [49.254, -123.13],
+        contour: [[0.0, 0.0], [0.0, 0.25], [0.5, 0.5], [0.25, 0.0]]
+      }),
+      new MapView({
+        id: 'map-view-2',
+        center: [0.75, 0.75],
+        latlon: [49.254, -123.13],
+        contour: [[0.5, 0.5], [0.5, 0.75], [1.0, 1.0], [0.75, 0.5]]
+      })
+    ];
     views = Array.isArray(views) ? views : [views];
     if (views.length && props.controller) {
       // Backward compatibility: support controller prop
-      views[0].props.controller = props.controller;
+      for (const view of views) {
+        view.props.controller = props.controller;
+      }
     }
     return views;
   }
@@ -715,7 +732,7 @@ export default class Deck {
     // If initialViewState was set on creation, auto track position
     if (this.viewState) {
       this.viewState[params.viewId] = viewState;
-      this.viewManager.setProps({viewState});
+      this.viewManager.setProps({viewState, viewId: params.viewId});
     }
   }
 
