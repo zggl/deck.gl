@@ -15,10 +15,10 @@ export default class MaskPass extends Pass {
     this.model = this._getModel(gl);
   }
 
-  render() {
+  render(params) {
     const gl = this.gl;
 
-    this._renderPass(gl);
+    this._renderPass(gl, params);
   }
 
   delete() {
@@ -33,7 +33,7 @@ export default class MaskPass extends Pass {
     return model;
   }
 
-  _renderPass(gl) {
+  _renderPass(gl, params) {
     const writeValue = 1;
     const clearValue = 0;
 
@@ -56,14 +56,35 @@ export default class MaskPass extends Pass {
     // re-enable update of color and depth
     gl.colorMask(true, true, true, true);
     gl.depthMask(true);
-
-    this.model.setDrawMode(GL.LINE_LOOP);
-    this.model.draw();
+    if (params.color[0] !== 0) {
+      this.model.setDrawMode(GL.LINE_LOOP);
+      this.model.draw({
+        uniforms: {
+          color: [10, 10, 10]
+        },
+        parameters: {
+          depthWrite: true,
+          depthTest: true
+        }
+      });
+    } else {
+      params.color[0] = params.color[1];
+    }
 
     // only render where stencil is set to 1
     gl.stencilFunc(gl.EQUAL, 1, 0xffffffff); // draw if == 1
     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
 
     gl.enable(gl.STENCIL_TEST);
+    this.model.setDrawMode(GL.TRIANGLE_FAN);
+    this.model.draw({
+      uniforms: {
+        color: params.color
+      },
+      parameters: {
+        depthWrite: false,
+        depthTest: false
+      }
+    });
   }
 }

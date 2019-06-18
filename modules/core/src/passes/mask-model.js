@@ -9,6 +9,14 @@ void main(void) {
 }
 `;
 
+const MASK_FS_SHADER = `\
+uniform vec3 color;
+
+void main() {
+  gl_FragColor = vec4(color/255.0, 1.0);
+}
+`;
+
 export default class MaskModel extends Model {
   constructor(gl, opts) {
     const {contour = []} = opts;
@@ -23,6 +31,7 @@ export default class MaskModel extends Model {
       gl,
       Object.assign({}, opts, {
         vs: MASK_VERTEX_SHADER,
+        fs: MASK_FS_SHADER,
         geometry: new Geometry({
           drawMode: GL.TRIANGLE_FAN,
           vertexCount: positions.length / 2,

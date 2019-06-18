@@ -7,6 +7,11 @@ export default class LayersPass extends Pass {
   constructor(gl, props = {}) {
     super(gl, props);
     this.maskPasses = {};
+    this.bgColors = {
+      'map-view-sf': [0, 200, 200],
+      'map-view-seattle': [200, 200, 200],
+      'map-view-ny': [200, 200, 200]
+    };
   }
 
   render(params) {
@@ -44,7 +49,7 @@ export default class LayersPass extends Pass {
         if (!this.maskPasses[view.id]) {
           this.maskPasses[view.id] = new MaskPass(this.gl, {contour: view.props.contour});
         }
-        this.maskPasses[view.id].render();
+        this.maskPasses[view.id].render({color: this.bgColors[view.id].slice()});
       }
 
       // Update context to point to this viewport
