@@ -28,7 +28,7 @@ import {
   addMetersToLngLat,
   getProjectionParameters,
   fitBounds
-} from 'viewport-mercator-project';
+} from './web-mercator-utils.js';
 
 // TODO - import from math.gl
 import * as vec2 from 'gl-matrix/vec2';
@@ -52,8 +52,8 @@ export default class WebMercatorViewport extends Viewport {
       zoom = 11,
       pitch = 0,
       bearing = 0,
-      nearZMultiplier = 0.1,
-      farZMultiplier = 10,
+      nearZMultiplier = 1,
+      farZMultiplier = 1,
       orthographic = false
     } = opts;
 
