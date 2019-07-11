@@ -52,7 +52,7 @@ export default class WebMercatorViewport extends Viewport {
       zoom = 11,
       pitch = 0,
       bearing = 0,
-      nearZMultiplier = 1,
+      nearZMultiplier = 0.1,
       farZMultiplier = 1,
       orthographic = false
     } = opts;

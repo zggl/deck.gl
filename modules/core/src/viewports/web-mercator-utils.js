@@ -228,21 +228,21 @@ export function getProjectionParameters({
   nearZMultiplier = 1,
   farZMultiplier = 1
 }) {
-  const z = altitude * height;
+  const pixels = altitude * height;
   // Find the distance from the center point to the center top
   // in altitude units using law of sines.
   const pitchRadians = pitch * DEGREES_TO_RADIANS;
-  const halfFov = Math.atan(0.5 / z);
+  const halfFov = Math.atan(0.5 / pixels);
   const topHalfSurfaceDistance =
-    Math.sin(halfFov) * z / Math.sin(Math.PI / 2 - pitchRadians - halfFov);
+    Math.sin(halfFov) * pixels / Math.sin(Math.PI / 2 - pitchRadians - halfFov);
 
   // Calculate z value of the farthest fragment that should be rendered.
-  const farZ = Math.cos(Math.PI / 2 - pitchRadians) * topHalfSurfaceDistance + z;
+  const farZ = Math.cos(Math.PI / 2 - pitchRadians) * topHalfSurfaceDistance + pixels;
 
   return {
-    fov: 2 * Math.atan((height / 2) / z),
+    fov: 2 * Math.atan((height / 2) / pixels),
     aspect: width / height,
-    focalDistance: z,
+    focalDistance: pixels,
     near: nearZMultiplier * height,
     far: farZ * farZMultiplier
   };
