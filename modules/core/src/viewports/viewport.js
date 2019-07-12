@@ -315,7 +315,7 @@ export default class Viewport {
 
   /* eslint-disable complexity, max-statements */
   _initViewMatrix(opts) {
-    const {
+    let {
       // view matrix
       viewMatrix = IDENTITY,
 
@@ -333,13 +333,17 @@ export default class Viewport {
     // Check if we have a geospatial anchor
     this.isGeospatial = Number.isFinite(latitude) && Number.isFinite(longitude);
 
+    this.viewScale = Math.pow(2, zoom);
+
+    zoom = 0;
+
     this.zoom = zoom;
     if (!Number.isFinite(this.zoom)) {
       this.zoom = this.isGeospatial
         ? getMeterZoom({latitude}) + Math.log2(focalDistance)
         : DEFAULT_ZOOM;
     }
-    const scale = Math.pow(2, this.zoom);
+    const scale = Math.pow(2, zoom);
     this.scale = scale;
 
     // Calculate distance scales if lng/lat/zoom are provided
@@ -380,6 +384,7 @@ export default class Viewport {
     this.viewMatrix = new Matrix4()
       // Apply the uncentered view matrix
       .multiplyRight(this.viewMatrixUncentered)
+      .scale(this.viewScale)
       // And center it
       .translate(new Vector3(this.center || ZERO_VECTOR).negate());
   }

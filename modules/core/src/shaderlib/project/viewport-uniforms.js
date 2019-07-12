@@ -37,7 +37,7 @@ const DEFAULT_PIXELS_PER_UNIT2 = [0, 0, 0];
 const DEFAULT_COORDINATE_ORIGIN = [0, 0, 0];
 
 // Based on viewport-mercator-project/test/fp32-limits.js
-export const LNGLAT_AUTO_OFFSET_ZOOM_THRESHOLD = 12;
+export const LNGLAT_AUTO_OFFSET_ZOOM_THRESHOLD = 1000;
 
 const getMemoizedViewportUniforms = memoize(calculateViewportUniforms);
 
@@ -238,6 +238,7 @@ function calculateViewportUniforms({
     project_uCommonUnitsPerWorldUnit: distanceScales.pixelsPerMeter,
     project_uCommonUnitsPerWorldUnit2: DEFAULT_PIXELS_PER_UNIT2,
     project_uScale: viewport.scale, // This is the mercator scale (2 ** zoom)
+    project_uViewScale: viewport.viewScale, // This is the mercator scale (2 ** zoom)
 
     project_uViewProjectionMatrix: viewProjectionMatrix,
 

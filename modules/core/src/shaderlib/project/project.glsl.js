@@ -30,6 +30,7 @@ ${COORDINATE_SYSTEM_GLSL_CONSTANTS}
 
 uniform float project_uCoordinateSystem;
 uniform float project_uScale;
+uniform float project_uViewScale;
 uniform bool project_uWrapLongitude;
 uniform float project_uAntimeridian;
 uniform vec3 project_uCommonUnitsPerMeter;
@@ -107,7 +108,7 @@ vec2 project_mercator_(vec2 lnglat) {
 //
 vec4 project_position(vec4 position, vec2 position64xyLow) {
   // TODO - why not simply subtract center and fall through?
-  if (project_uCoordinateSystem == COORDINATE_SYSTEM_LNG_LAT) {
+  if (project_uCoordinateSystem == COORDINATE_SYSTEM_LNG_LAT || project_uCoordinateSystem == COORDINATE_SYSTEM_LNGLAT_AUTO_OFFSET) {
     return project_uModelMatrix * vec4(
       project_mercator_(position.xy) * WORLD_SCALE * project_uScale,
       project_size(position.z),
@@ -115,12 +116,12 @@ vec4 project_position(vec4 position, vec2 position64xyLow) {
     );
   }
 
-  if (project_uCoordinateSystem == COORDINATE_SYSTEM_LNGLAT_AUTO_OFFSET) {
-    // Subtract high part of 64 bit value. Convert remainder to float32, preserving precision.
-    float X = position.x - project_uCoordinateOrigin.x;
-    float Y = position.y - project_uCoordinateOrigin.y;
-    return project_offset_(vec4(X + position64xyLow.x, Y + position64xyLow.y, position.z, position.w));
-  }
+  // if (project_uCoordinateSystem == COORDINATE_SYSTEM_LNGLAT_AUTO_OFFSET) {
+  //   // Subtract high part of 64 bit value. Convert remainder to float32, preserving precision.
+  //   float X = position.x - project_uCoordinateOrigin.x;
+  //   float Y = position.y - project_uCoordinateOrigin.y;
+  //   return project_offset_(vec4(X + position64xyLow.x, Y + position64xyLow.y, position.z, position.w));
+  // }
 
   if (project_uCoordinateSystem == COORDINATE_SYSTEM_LNGLAT_OFFSETS) {
     return project_offset_(position);

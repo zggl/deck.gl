@@ -103,7 +103,7 @@ const defaultProps = {
   controller: null, // Rely on external controller, e.g. react-map-gl
   useDevicePixels: true,
   touchAction: 'none',
-  _animate: false,
+  _animate: true,
 
   onWebGLInitialized: noop,
   onResize: noop,

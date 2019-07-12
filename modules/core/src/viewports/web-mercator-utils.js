@@ -213,8 +213,6 @@ export function getViewMatrix({
     mat4.translate(vm, vm, vec3.negate([], center));
   }
 
-  vec4.transformMat4([], [1, 1, 1, 1], vm);
-
   return vm;
 }
 
