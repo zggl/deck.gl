@@ -384,7 +384,7 @@ export default class Viewport {
     this.viewMatrix = new Matrix4()
       // Apply the uncentered view matrix
       .multiplyRight(this.viewMatrixUncentered)
-      .scale(this.viewScale)
+      // .scale(this.viewScale)
       // And center it
       .translate(new Vector3(this.center || ZERO_VECTOR).negate());
   }

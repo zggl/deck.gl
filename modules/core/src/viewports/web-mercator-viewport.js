@@ -73,7 +73,8 @@ export default class WebMercatorViewport extends Viewport {
       pitch,
       altitude,
       nearZMultiplier,
-      farZMultiplier
+      farZMultiplier,
+      viewScale: Math.pow(2, zoom)
     });
 
     // The uncentered matrix allows us two move the center addition to the
@@ -84,7 +85,8 @@ export default class WebMercatorViewport extends Viewport {
       height,
       pitch,
       bearing,
-      altitude
+      altitude,
+      viewScale: Math.pow(2, zoom)
     });
 
     const viewportOpts = Object.assign({}, opts, {
