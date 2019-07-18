@@ -5,10 +5,10 @@ import {render} from 'react-dom';
 import {StaticMap} from 'react-map-gl';
 import DeckGL, {ScenegraphLayer} from 'deck.gl';
 
-import {GLTFScenegraphLoader} from '@luma.gl/addons';
+import {GLTFLoader} from '@loaders.gl/gltf';
 import {registerLoaders} from '@loaders.gl/core';
 
-registerLoaders([GLTFScenegraphLoader]);
+registerLoaders([GLTFLoader]);
 
 // Set your mapbox token here
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
