@@ -99,7 +99,7 @@ vec2 project_mercator_(vec2 lnglat) {
   }
   return vec2(
     radians(x) + PI,
-    PI - log(tan_fp32(PI * 0.25 + radians(lnglat.y) * 0.5))
+    PI + log(tan_fp32(PI * 0.25 + radians(lnglat.y) * 0.5))
   );
 }
 

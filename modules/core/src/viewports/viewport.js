@@ -315,13 +315,12 @@ export default class Viewport {
 
   /* eslint-disable complexity, max-statements */
   _initViewMatrix(opts) {
-    let {
+    const {
       // view matrix
       viewMatrix = IDENTITY,
 
       longitude = null, // Anchor: lng lat zoom makes viewport work w/ geospatial coordinate systems
       latitude = null,
-      zoom = null,
 
       position = null, // Anchor position offset (in meters for geospatial viewports)
       modelMatrix = null, // A model matrix to be applied to position, to match the layer props API
@@ -329,6 +328,8 @@ export default class Viewport {
 
       distanceScales = null
     } = opts;
+
+    let {zoom = null} = opts;
 
     // Check if we have a geospatial anchor
     this.isGeospatial = Number.isFinite(latitude) && Number.isFinite(longitude);
@@ -375,7 +376,7 @@ export default class Viewport {
       this.center = this._getCenterInWorld({longitude, latitude});
 
       // Flip Y to match the orientation of the Mercator plane
-      this.viewMatrixUncentered = mat4.scale([], viewMatrix, [1, -1, 1]);
+      this.viewMatrixUncentered = viewMatrix;
     } else {
       this.center = position ? this.projectPosition(position) : [0, 0, 0];
       this.viewMatrixUncentered = viewMatrix;

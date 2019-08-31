@@ -52,8 +52,8 @@ export function lngLatToWorld([lng, lat], scale) {
   scale *= TILE_SIZE;
   const lambda2 = lng * DEGREES_TO_RADIANS;
   const phi2 = lat * DEGREES_TO_RADIANS;
-  const x = scale * (lambda2 + PI) / (2 * PI);
-  const y = scale * (PI - Math.log(Math.tan(PI_4 + phi2 * 0.5))) / (2 * PI);
+  const x = (scale * (lambda2 + PI)) / (2 * PI);
+  const y = (scale * (PI + Math.log(Math.tan(PI_4 + phi2 * 0.5)))) / (2 * PI);
   return [x, y];
 }
 
@@ -69,7 +69,7 @@ export function lngLatToWorld([lng, lat], scale) {
 export function worldToLngLat([x, y], scale) {
   scale *= TILE_SIZE;
   const lambda2 = (x / scale) * (2 * PI) - PI;
-  const phi2 = 2 * (Math.atan(Math.exp(PI - (y / scale) * (2 * PI))) - PI_4);
+  const phi2 = 2 * (Math.atan(Math.exp(PI + (y / scale) * (2 * PI))) - PI_4);
   return [lambda2 * RADIANS_TO_DEGREES, phi2 * RADIANS_TO_DEGREES];
 }
 
@@ -132,10 +132,10 @@ export function getDistanceScales({latitude, longitude, zoom, scale, highPrecisi
        = DEGREES_TO_RADIANS * tan(lat * DEGREES_TO_RADIANS) / cos(lat * DEGREES_TO_RADIANS) * dLat
    */
   if (highPrecision) {
-    const latCosine2 = DEGREES_TO_RADIANS * Math.tan(latitude * DEGREES_TO_RADIANS) / latCosine;
-    const pixelsPerDegreeY2 = pixelsPerDegreeX * latCosine2 / 2;
-    const altPixelsPerDegree2 = worldSize / EARTH_CIRCUMFERENCE * latCosine2;
-    const altPixelsPerMeter2 = altPixelsPerDegree2 / pixelsPerDegreeY * altPixelsPerMeter;
+    const latCosine2 = (DEGREES_TO_RADIANS * Math.tan(latitude * DEGREES_TO_RADIANS)) / latCosine;
+    const pixelsPerDegreeY2 = (pixelsPerDegreeX * latCosine2) / 2;
+    const altPixelsPerDegree2 = (worldSize / EARTH_CIRCUMFERENCE) * latCosine2;
+    const altPixelsPerMeter2 = (altPixelsPerDegree2 / pixelsPerDegreeY) * altPixelsPerMeter;
 
     result.pixelsPerDegree2 = [0, -pixelsPerDegreeY2, altPixelsPerDegree2];
     result.pixelsPerMeter2 = [altPixelsPerMeter2, 0, altPixelsPerMeter2];
@@ -187,7 +187,6 @@ export function getViewMatrix({
   flipY = false,
   viewScale
 }) {
-
   // VIEW MATRIX: PROJECTS MERCATOR WORLD COORDINATES
   // Note that mercator world coordinates typically need to be flipped
   //
@@ -196,7 +195,7 @@ export function getViewMatrix({
   const vm = createMat4();
 
   // Move camera to altitude (along the pitch & bearing direction)
-  mat4.translate(vm, vm, [0, 0, -altitude * height / viewScale]);
+  mat4.translate(vm, vm, [0, 0, (-altitude * height) / viewScale]);
 
   // After the rotateX, z values are in pixel units. Convert them to
   // altitude units. 1 altitude unit = the screen height.
@@ -228,13 +227,13 @@ export function getProjectionParameters({
   farZMultiplier = 1,
   viewScale
 }) {
-  const pixels = altitude * height / viewScale;
+  const pixels = (altitude * height) / viewScale;
   // Find the distance from the center point to the center top
   // in altitude units using law of sines.
   const pitchRadians = pitch * DEGREES_TO_RADIANS;
   const halfFov = Math.atan(0.5 / altitude);
   const topHalfSurfaceDistance =
-    Math.sin(halfFov) * pixels / Math.sin(Math.PI / 2 - pitchRadians - halfFov);
+    (Math.sin(halfFov) * pixels) / Math.sin(Math.PI / 2 - pitchRadians - halfFov);
 
   // Calculate z value of the farthest fragment that should be rendered.
   const farZ = Math.cos(Math.PI / 2 - pitchRadians) * topHalfSurfaceDistance + pixels;
@@ -243,7 +242,7 @@ export function getProjectionParameters({
     fov: 2 * halfFov,
     aspect: width / height,
     focalDistance: pixels,
-    near: nearZMultiplier * height / viewScale,
+    near: (nearZMultiplier * height) / viewScale,
     far: farZ * farZMultiplier
   };
 }
@@ -260,15 +259,21 @@ export function getProjectionMatrix({
   nearZMultiplier,
   farZMultiplier
 }) {
-  const {fov, aspect, near, far} =
-    getProjectionParameters({width, height, altitude, pitch, nearZMultiplier, farZMultiplier});
+  const {fov, aspect, near, far} = getProjectionParameters({
+    width,
+    height,
+    altitude,
+    pitch,
+    nearZMultiplier,
+    farZMultiplier
+  });
 
   const projectionMatrix = mat4.perspective(
     [],
-    fov,      // fov in radians
-    aspect,   // aspect ratio
-    near,     // near plane
-    far       // far plane
+    fov, // fov in radians
+    aspect, // aspect ratio
+    near, // near plane
+    far // far plane
   );
 
   return projectionMatrix;
