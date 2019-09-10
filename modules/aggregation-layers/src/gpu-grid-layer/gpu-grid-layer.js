@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 import {PhongMaterial} from '@luma.gl/core';
-import {CompositeLayer, log} from '@deck.gl/core';
+import {CompositeLayer, AttributeManager, log} from '@deck.gl/core';
 
 import GPUGridAggregator from '../utils/gpu-grid-aggregation/gpu-grid-aggregator';
 import {AGGREGATION_OPERATION} from '../utils/aggregation-operation-utils';
@@ -27,6 +27,8 @@ import {pointToDensityGridData} from '../utils/gpu-grid-aggregation/grid-aggrega
 import {defaultColorRange, colorRangeToFlatArray} from '../utils/color-utils';
 import GPUGridCellLayer from './gpu-grid-cell-layer';
 import {pointToDensityGridDataCPU} from './../cpu-grid-layer/grid-aggregator';
+
+import GL from '@luma.gl/constants';
 
 const defaultMaterial = new PhongMaterial();
 const defaultProps = {
@@ -71,15 +73,55 @@ export default class GPUGridLayer extends CompositeLayer {
       gpuGridAggregator: new GPUGridAggregator(gl, options),
       isSupported
     };
+
+    const attributeManager = this.getAttributeManager();
+    attributeManager.add({
+      positions: {size: 3, accessor: 'getPosition', type: GL.DOUBLE},
+      'weights.color': {size: 3, accessor: 'getColorWeight'},
+      'weights.elevation': {size: 3, accessor: 'getElevationWeight'}
+    });
   }
 
-  updateState(opts) {
-    const aggregationFlags = this.getAggregationFlags(opts);
-    if (aggregationFlags) {
-      // aggregate points into grid cells
-      this.getLayerData(aggregationFlags);
+  updateState({props, oldProps, changeFlags}) {
+    if (!this.state.isSupported) {
+      // Skip update, layer not supported
+      return;
+    }
+
+    if (
+      changeFlags.gpuAggregation !== props.gpuAggregation ||
+      oldProps.colorAggregation !== props.colorAggregation ||
+      oldProps.elevationAggregation !== props.elevationAggregation
+    ) {
+      this.setState({aggregationChanged: true});
+    }
+    if (oldProps.cellSize !== props.cellSize) {
+      this.setState({cellSizeChanged: true});
+    }
+    // TODO - just run this for all layers
+    this._updateAttributes(props);
+  }
+
+  updateAttributes(changedAttributes) {
+    let dataChanged = false;
+    // eslint-disable-next-line
+    for (const name in changedAttributes) {
+      dataChanged = true;
+      break;
+    }
+
+    if (dataChanged || this.state.aggregationChanged || this.state.cellSizeChanged) {
+      this._getLayerData({
+        dataChanged: dataChanged || this.state.aggregationChanged,
+        cellSizeChanged: this.state.cellSizeChanged
+      });
+
       // reset cached CPU Aggregation results (used for picking)
-      this.setState({gridHash: null});
+      this.setState({
+        aggregationChanged: false,
+        cellSizeChanged: false,
+        gridHash: null
+      });
     }
   }
 
@@ -94,39 +136,17 @@ export default class GPUGridLayer extends CompositeLayer {
       // Skip update, layer not supported
       return false;
     }
-    if (this.isDataChanged({oldProps, props, changeFlags})) {
-      aggregationFlags = Object.assign({}, aggregationFlags, {dataChanged: true});
+    if (
+      changeFlags.gpuAggregation !== props.gpuAggregation ||
+      oldProps.colorAggregation !== props.colorAggregation ||
+      oldProps.elevationAggregation !== props.elevationAggregation
+    ) {
+      aggregationFlags = Object.assign({}, aggregationFlags, {aggregationChanged: true});
     }
     if (oldProps.cellSize !== props.cellSize) {
       aggregationFlags = Object.assign({}, aggregationFlags, {cellSizeChanged: true});
     }
     return aggregationFlags;
-  }
-
-  isDataChanged({oldProps, props, changeFlags}) {
-    // Flags affecting aggregation data
-    if (changeFlags.dataChanged) {
-      return true;
-    }
-    if (oldProps.gpuAggregation !== props.gpuAggregation) {
-      return true;
-    }
-    if (
-      oldProps.colorAggregation !== props.colorAggregation ||
-      oldProps.elevationAggregation !== props.elevationAggregation
-    ) {
-      return true;
-    }
-    if (
-      changeFlags.updateTriggersChanged &&
-      (changeFlags.updateTriggersChanged.all ||
-        changeFlags.updateTriggersChanged.getPosition ||
-        changeFlags.updateTriggersChanged.getColorWeight ||
-        changeFlags.updateTriggersChanged.getElevationWeight)
-    ) {
-      return true;
-    }
-    return false;
   }
 
   getHashKeyForIndex(index) {
@@ -194,21 +214,16 @@ export default class GPUGridLayer extends CompositeLayer {
     });
   }
 
-  getLayerData(aggregationFlags) {
+  _getLayerData(aggregationFlags) {
     const {
-      data,
       cellSize: cellSizeMeters,
-      getPosition,
       gpuAggregation,
-      getColorWeight,
       colorAggregation,
-      getElevationWeight,
-      elevationAggregation,
-      fp64
+      elevationAggregation
     } = this.props;
+
     const weightParams = {
       color: {
-        getWeight: getColorWeight,
         operation:
           AGGREGATION_OPERATION[colorAggregation] ||
           AGGREGATION_OPERATION[defaultProps.colorAggregation],
@@ -217,7 +232,6 @@ export default class GPUGridLayer extends CompositeLayer {
         combineMaxMin: true
       },
       elevation: {
-        getWeight: getElevationWeight,
         operation:
           AGGREGATION_OPERATION[elevationAggregation] ||
           AGGREGATION_OPERATION[defaultProps.elevationAggregation],
@@ -227,17 +241,24 @@ export default class GPUGridLayer extends CompositeLayer {
       }
     };
     const {weights, gridSize, gridOrigin, cellSize, boundingBox} = pointToDensityGridData({
-      data,
+      vertexCount: this.getNumInstances(),
+      attributes: this.getAttributeManager().getAttributes(),
       cellSizeMeters,
-      getPosition,
       weightParams,
       gpuAggregation,
       gpuGridAggregator: this.state.gpuGridAggregator,
       boundingBox: this.state.boundingBox, // avoid parsing data when it is not changed.
-      aggregationFlags,
-      fp64
+      aggregationFlags
     });
     this.setState({weights, gridSize, gridOrigin, cellSize, boundingBox});
+  }
+
+  // override Composite layer private method to create AttributeManager instance
+  _getAttributeManager() {
+    return new AttributeManager(this.context.gl, {
+      id: this.props.id,
+      stats: this.context.stats
+    });
   }
 
   renderLayers() {

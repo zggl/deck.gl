@@ -366,7 +366,7 @@ export default class GPUGridAggregator {
     // log.assert for required options
     log.assert(
       !changeFlags.dataChanged ||
-        (opts.positions &&
+        (opts.attributes &&
           opts.weights &&
           (!opts.projectPositions || opts.viewport) &&
           opts.cellSize)
@@ -387,9 +387,10 @@ export default class GPUGridAggregator {
   // aggregated weight value to a cell
   /* eslint-disable max-depth */
   calculateAggregationData(opts) {
-    const {weights, results, cellIndex, posIndex} = opts;
+    const {weights, attributes, results, cellIndex, posIndex} = opts;
     for (const id in weights) {
-      const {values, size, operation} = weights[id];
+      const {size, operation} = weights[id];
+      const values = attributes[`weights.${id}`].value;
       const {aggregationData} = results[id];
 
       // Fill RGB with weights
@@ -531,7 +532,7 @@ export default class GPUGridAggregator {
 
   /* eslint-disable max-statements */
   runAggregationOnCPU(opts) {
-    const {positions, cellSize, gridTransformMatrix, viewport, projectPoints} = opts;
+    const {attributes, vertexCount, cellSize, gridTransformMatrix, viewport, projectPoints} = opts;
     let {weights} = opts;
     const {numCol, numRow} = this.state;
     const results = this.initCPUResults(opts);
@@ -542,19 +543,17 @@ export default class GPUGridAggregator {
 
     log.assert(gridTransformRequired || opts.changeFlags.cellSizeChanged);
 
-    let posCount;
     if (gridTransformRequired) {
-      posCount = positions.length / 2;
-      gridPositions = new Float64Array(positions.length);
+      gridPositions = new Float64Array(vertexCount * 2);
       this.setState({gridPositions});
     } else {
       gridPositions = this.state.gridPositions;
       weights = this.state.weights;
-      posCount = gridPositions.length / 2;
     }
 
+    const positions = attributes.positions.value;
     const validCellIndices = new Set();
-    for (let posIndex = 0; posIndex < posCount; posIndex++) {
+    for (let posIndex = 0; posIndex < vertexCount; posIndex++) {
       let x;
       let y;
       if (gridTransformRequired) {
@@ -577,7 +576,7 @@ export default class GPUGridAggregator {
       if (colId >= 0 && colId < numCol && rowId >= 0 && rowId < numRow) {
         const cellIndex = (colId + rowId * numCol) * ELEMENTCOUNT;
         validCellIndices.add(cellIndex);
-        this.calculateAggregationData({weights, results, cellIndex, posIndex});
+        this.calculateAggregationData({weights, attributes, results, cellIndex, posIndex});
       }
     }
 
@@ -981,24 +980,9 @@ export default class GPUGridAggregator {
 
   // set up buffers for all weights
   setupWeightAttributes(opts) {
-    const {weightAttributes, vertexCount, weights, resources} = this.state;
+    const {weightAttributes, weights} = this.state;
     for (const id in weights) {
-      const {values} = weights[id];
-      // values can be Array, Float32Array or Buffer
-      if (Array.isArray(values) || values.constructor === Float32Array) {
-        log.assert(values.length / 3 === vertexCount);
-        const typedArray = Array.isArray(values) ? new Float32Array(values) : values;
-        if (weightAttributes[id] instanceof Buffer) {
-          weightAttributes[id].setData(typedArray);
-        } else {
-          resources[`${id}-buffer`] = new Buffer(this.gl, typedArray);
-          weightAttributes[id] = resources[`${id}-buffer`];
-        }
-      } else {
-        // log.assert((values instanceof Attribute) || (values instanceof Buffer));
-        log.assert(values instanceof Buffer);
-        weightAttributes[id] = values;
-      }
+      weightAttributes[id] = opts.attributes[`weights.${id}`];
     }
   }
 
@@ -1026,8 +1010,7 @@ export default class GPUGridAggregator {
 
   /* eslint-disable max-statements */
   updateModels(opts) {
-    const {gl} = this;
-    const {positions, positions64xyLow, changeFlags} = opts;
+    const {changeFlags, vertexCount, attributes} = opts;
     const {numCol, numRow} = this.state;
     const aggregationModelAttributes = {};
     let modelDirty = false;
@@ -1039,27 +1022,19 @@ export default class GPUGridAggregator {
     }
 
     if (changeFlags.dataChanged || !this.state.positionsBuffer) {
-      let {positionsBuffer, positions64xyLowBuffer} = this.state;
-      if (positionsBuffer) {
-        positionsBuffer.delete();
-      }
-      if (positions64xyLowBuffer) {
-        positions64xyLowBuffer.delete();
-      }
-      const vertexCount = positions.length / 2;
-      positionsBuffer = new Buffer(gl, new Float32Array(positions));
-      positions64xyLowBuffer = new Buffer(gl, {
-        data: new Float32Array(positions64xyLow),
-        accessor: {size: 2}
+      const {positions, positions64xyLow} = attributes.positions.getShaderAttributes();
+      this.setState({
+        positionsBuffer: positions.getBuffer(),
+        positions64xyLowBuffer: positions64xyLow.getBuffer(),
+        vertexCount
       });
-      this.setState({positionsBuffer, positions64xyLowBuffer, vertexCount});
 
       this.setupWeightAttributes(opts);
       modelDirty = true;
     }
 
     if (modelDirty) {
-      const {vertexCount, positionsBuffer, positions64xyLowBuffer} = this.state;
+      const {positionsBuffer, positions64xyLowBuffer} = this.state;
       aggregationModelAttributes.positions = positionsBuffer;
       if (opts.fp64) {
         aggregationModelAttributes.positions64xyLow = positions64xyLowBuffer;
