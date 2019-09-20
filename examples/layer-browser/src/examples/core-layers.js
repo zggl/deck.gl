@@ -323,13 +323,14 @@ const MegaScatterplotLayerExample = {
 const MultiScatterplotLayerExample = [];
 
 for (let i = 0; i < 1000; ++i) {
+  const color = Math.floor(Math.random() * 256);
   MultiScatterplotLayerExample.push({
     layer: ScatterplotLayer,
     getData: () => sfRandomPoints(100, 10),
     props: {
       id: `scatterplotLayerMulti${i}`,
       getPosition: d => d.position,
-      getFillColor: d => [255, 128, Math.floor(Math.random() * 256)],
+      getFillColor: d => [255, 128, color],
       getLineColor: d => [0, 128, 255],
       getRadius: d => d.value,
       opacity: 1,

@@ -61,7 +61,7 @@ export default class App extends PureComponent {
 
     this.state = props.state || {
       activeExamples: {
-        ScatterplotLayer: true
+        MultiScatterplotLayerExample: true
       },
       settings: {
         shadow: false,
@@ -168,13 +168,16 @@ export default class App extends PureComponent {
         const settings = activeExamples[exampleName];
         // An example is a function that returns a DeckGL layer instance
         if (settings) {
+          if (typeof settings !== 'object') {
+            activeExamples[exampleName] = {};
+          }
           let examples = LAYER_CATEGORIES[categoryName][exampleName];
           examples = Array.isArray(examples) ? examples : [examples];
-          examples.forEach((example) => {
+          examples.forEach(example => {
             const layer = this._renderExampleLayer(example, settings, index++);
 
-            if (typeof settings !== 'object') {
-              activeExamples[exampleName] = LayerControls.getSettings(layer.props);
+            if (!activeExamples[exampleName][layer.props.id]) {
+              activeExamples[exampleName][layer.props.id] = LayerControls.getSettings(layer.props);
             }
 
             layers.push(layer);
