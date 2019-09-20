@@ -27,6 +27,30 @@ const {flattenVertices} = experimental;
 import * as dataSamples from '../data-samples';
 import {parseColor, setOpacity} from '../utils/color';
 
+const SF_MIN = [-122.511289, 37.709481];
+const SF_MAX = [-122.37646761, 37.806013]
+
+function sfRandomPoints(numPoints, maxVal) {
+  let points = new Array(numPoints);
+
+  let lngMin = SF_MIN[0];
+  let latMin = SF_MIN[1];
+  let lngRange = SF_MAX[0] - SF_MIN[0];
+  let latRange = SF_MAX[1] - SF_MIN[1];
+
+  for (let i = 0; i < numPoints; ++i) {
+    points[i] = {
+      position: [
+        lngMin + Math.random() * lngRange,
+        latMin + Math.random() * latRange,
+      ],
+      value: Math.random() * maxVal
+    }
+  }
+
+  return points;
+}
+
 const MARKER_SIZE_MAP = {
   small: 200,
   medium: 500,
@@ -279,6 +303,44 @@ const ScatterplotLayerExample = {
   }
 };
 
+const MegaScatterplotLayerExample = {
+  layer: ScatterplotLayer,
+  getData: () => sfRandomPoints(100000, 10),
+  props: {
+    id: 'scatterplotLayer100k',
+    getPosition: d => d.position,
+    getFillColor: d => [255, 128, 0],
+    getLineColor: d => [0, 128, 255],
+    getRadius: d => d.value,
+    opacity: 1,
+    pickable: true,
+    radiusScale: 30,
+    radiusMinPixels: 1,
+    radiusMaxPixels: 30
+  }
+};
+
+const MultiScatterplotLayerExample = [];
+
+for (let i = 0; i < 1000; ++i) {
+  MultiScatterplotLayerExample.push({
+    layer: ScatterplotLayer,
+    getData: () => sfRandomPoints(100, 10),
+    props: {
+      id: `scatterplotLayerMulti${i}`,
+      getPosition: d => d.position,
+      getFillColor: d => [255, 128, Math.floor(Math.random() * 256)],
+      getLineColor: d => [0, 128, 255],
+      getRadius: d => d.value,
+      opacity: 1,
+      pickable: true,
+      radiusScale: 30,
+      radiusMinPixels: 1,
+      radiusMaxPixels: 30
+    }
+  });
+}
+
 const ColumnLayerExample = {
   layer: ColumnLayer,
   props: {
@@ -502,6 +564,8 @@ export default {
     PathLayer: PathLayerExample,
     'PathLayer (Flat)': PathLayerBinaryExample,
     ScatterplotLayer: ScatterplotLayerExample,
+    'ScatterplotLayer (100K)' : MegaScatterplotLayerExample,
+    'ScatterplotLayer (1000 Instances)' : MultiScatterplotLayerExample,
     ArcLayer: ArcLayerExample,
     LineLayer: LineLayerExample,
     IconLayer: IconLayerExample,

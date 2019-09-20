@@ -77,19 +77,19 @@ export default class Map extends PureComponent {
   }
 
   pickObjects(opts) {
-    if (this.deckRef.current) {
-      const infos = this.deckRef.current.pickObjects(opts);
-      console.log(infos); // eslint-disable-line
-      this.setState({queriedItems: infos});
-    }
+    // if (this.deckRef.current) {
+    //   // const infos = this.deckRef.current.pickObjects(opts);
+    //   console.log(infos); // eslint-disable-line
+    //   this.setState({queriedItems: infos});
+    // }
   }
 
   pickMultipleObjects(opts) {
-    if (this.deckRef.current) {
-      const infos = this.deckRef.current.pickMultipleObjects(opts);
-      console.log(infos); // eslint-disable-line
-      this.setState({queriedItems: infos});
-    }
+    // if (this.deckRef.current) {
+    //   // const infos = this.deckRef.current.pickMultipleObjects(opts);
+    //   console.log(infos); // eslint-disable-line
+    //   this.setState({queriedItems: infos});
+    // }
   }
 
   _cameraShake() {
@@ -127,7 +127,7 @@ export default class Map extends PureComponent {
 
   _onClick(info) {
     if (this.state.enableDepthPickOnClick && info) {
-      this._multiDepthPick(info.x, info.y);
+      // this._multiDepthPick(info.x, info.y);
     } else {
       console.log('onClick', info); // eslint-disable-line
       this.setState({clickedItem: info});

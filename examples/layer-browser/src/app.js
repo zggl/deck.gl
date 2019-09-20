@@ -168,14 +168,17 @@ export default class App extends PureComponent {
         const settings = activeExamples[exampleName];
         // An example is a function that returns a DeckGL layer instance
         if (settings) {
-          const example = LAYER_CATEGORIES[categoryName][exampleName];
-          const layer = this._renderExampleLayer(example, settings, index++);
+          let examples = LAYER_CATEGORIES[categoryName][exampleName];
+          examples = Array.isArray(examples) ? examples : [examples];
+          examples.forEach((example) => {
+            const layer = this._renderExampleLayer(example, settings, index++);
 
-          if (typeof settings !== 'object') {
-            activeExamples[exampleName] = LayerControls.getSettings(layer.props);
-          }
+            if (typeof settings !== 'object') {
+              activeExamples[exampleName] = LayerControls.getSettings(layer.props);
+            }
 
-          layers.push(layer);
+            layers.push(layer);
+          });
         }
       }
     }

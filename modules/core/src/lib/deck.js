@@ -695,6 +695,10 @@ export default class Deck {
   }
 
   _onRenderFrame(animationProps) {
+    if (window.CAPTURE_FRAME) {
+      console.profile("FRAME");
+    }
+
     this._getFrameStats();
 
     // Log perf stats every second
@@ -728,6 +732,11 @@ export default class Deck {
     // We want to defer these changes to the next frame
     if (this.viewManager) {
       this.viewManager.updateViewStates();
+    }
+
+    if (window.CAPTURE_FRAME) {
+      console.profileEnd("FRAME");
+      window.CAPTURE_FRAME = false;
     }
   }
 
@@ -800,8 +809,8 @@ export default class Deck {
 
     // Get individual stats from luma.gl so reset works
     const animationLoopStats = this.animationLoop.stats;
-    stats.get('GPU Time').addTime(animationLoopStats.get('GPU Time').lastTiming);
-    stats.get('CPU Time').addTime(animationLoopStats.get('CPU Time').lastTiming);
+    stats.get('GPU Time').addTime(animationLoopStats.get('GPU Time')._lastTiming);
+    stats.get('CPU Time').addTime(animationLoopStats.get('CPU Time')._lastTiming);
   }
 
   _getMetrics() {
