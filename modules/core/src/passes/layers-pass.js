@@ -6,7 +6,11 @@ export default class LayersPass extends Pass {
   render(params) {
     const gl = this.gl;
 
-    return withParameters(gl, {framebuffer: params.outputBuffer}, () => this.drawLayers(params));
+    return withParameters(
+      gl,
+      {framebuffer: params.outputBuffer, ...params.effectProps.parameters},
+      () => this.drawLayers(params)
+    );
   }
 
   // PRIVATE

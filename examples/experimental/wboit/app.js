@@ -1,6 +1,7 @@
 import {Deck} from '@deck.gl/core';
 import geojson from 'data/sf.zip.geo.json';
-import WBOITLayer from './wboit-layer/wboit-layer';
+import SolidPolygonLayer from './solid-polygon-layer/solid-polygon-layer';
+import WBOITEffect from './wboit-effect/wboit-effect';
 
 const INITIAL_VIEW_STATE = {
   latitude: 37.78,
@@ -13,8 +14,9 @@ const INITIAL_VIEW_STATE = {
 export const deck = new Deck({
   initialViewState: INITIAL_VIEW_STATE,
   controller: true,
+  effects: [new WBOITEffect()],
   layers: [
-    new WBOITLayer({
+    new SolidPolygonLayer({
       data: geojson.features,
       getPolygon: f => f.geometry.coordinates,
       getFillColor: f => [200 + Math.random() * 55, 0, 0],
@@ -22,9 +24,10 @@ export const deck = new Deck({
       getLineDashArray: f => [20, 0],
       getLineWidth: f => 20,
       getElevation: f => Math.random() * 1000,
+      autoHighlight: true,
       extruded: true,
       opacity: 0.5,
-      pickable: false
+      pickable: true
     })
   ]
 });

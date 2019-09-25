@@ -18,38 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import main from './wboit-layer-vertex-main.glsl';
-
 export default `\
 #version 300 es
 
-#define SHADER_NAME wboit-layer-vertex-shader-side
-#define IS_SIDE_VERTEX
+#define SHADER_NAME wboit-layer-fragment-shader
 
+precision highp float;
 
-in vec3 instancePositions;
-in vec2 instancePositions64xyLow;
-in vec3 nextPositions;
-in vec2 nextPositions64xyLow;
-in float instanceElevations;
-in vec4 instanceFillColors;
-in vec4 instanceLineColors;
-in vec3 instancePickingColors;
+in vec4 vColor;
+in float isValid;
 
-${main}
+layout(location=0) out vec4 color;
 
 void main(void) {
-  PolygonProps props;
+  if (isValid < 0.5) {
+    discard;
+  }
 
-  props.positions = instancePositions;
-  props.positions64xyLow = instancePositions64xyLow;
-  props.elevations = instanceElevations;
-  props.fillColors = instanceFillColors;
-  props.lineColors = instanceLineColors;
-  props.pickingColors = instancePickingColors;
-  props.nextPositions = nextPositions;
-  props.nextPositions64xyLow = nextPositions64xyLow;
-
-  calculatePosition(props);
+  color = vColor;
+  DECKGL_FILTER_COLOR(color, geometry);
 }
 `;

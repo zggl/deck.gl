@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import main from './wboit-layer-vertex-main.glsl';
+import main from './solid-polygon-layer-vertex-main.glsl';
 
 export default `\
 #version 300 es
