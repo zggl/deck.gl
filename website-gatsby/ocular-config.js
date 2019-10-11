@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-str */
 const resolve = require('path').resolve;
 
 const DOCS = require('../docs/table-of-contents.json');
@@ -59,7 +60,8 @@ module.exports = {
     {
       text: 'High-Precision Computations in the GPU',
       // eslint-disable-next-line
-      desc: 'Using polynomial expansions of geospatial projections, \
+      desc:
+        'Using polynomial expansions of geospatial projections, \
 and through emulation of 64 bit floating point computations in the GPU, \
 deck.gl renders datasets with unparalleled accuracy and performance.',
       img: 'images/icon-high-precision.svg'
@@ -67,7 +69,8 @@ deck.gl renders datasets with unparalleled accuracy and performance.',
     {
       text: 'A Layered Approach to Data Visualization',
       // eslint-disable-next-line
-      desc: 'deck.gl allows complex visualizations to be constructed by \
+      desc:
+        'deck.gl allows complex visualizations to be constructed by \
 composing existing layers, and makes it easy to package and \
 share new visualizations as reusable layers. We already offer \
 a catalog of proven layers and we have many more in the works.',
@@ -76,7 +79,8 @@ a catalog of proven layers and we have many more in the works.',
     {
       text: 'Rich Base Map Support',
       // eslint-disable-next-line
-      desc: 'Geospatial visualizations can use vector tile layers to render maps, \
+      desc:
+        'Geospatial visualizations can use vector tile layers to render maps, \
 or use Mapbox GL or Google Maps as base maps with automatically synchronized camera systems. \
 When used with Mapbox GL it automatically coordinates with the Mapbox perspective camera system \
 and the mapbox custom layer API to provide compelling 3D visualizations on top of your \
@@ -86,10 +90,11 @@ Mapbox base maps.',
     {
       text: 'Deep React Integration',
       // eslint-disable-next-line
-      desc: 'The optional React integration provides highly performant WebGL rendering \
-under React\'s functional programming paradigm.',
+      desc:
+        "The optional React integration provides highly performant WebGL rendering \
+under React's functional programming paradigm.",
       img: 'images/icon-react.svg'
-    },
+    }
   ],
 
   PROJECTS: [
@@ -202,7 +207,6 @@ under React\'s functional programming paradigm.',
     //   image: 'images/examples/demo-thumb-plot.jpg',
     //   componentUrl: resolve(__dirname, '../examples/website/plot/app.js')
     // }
-
     // {
     //   title: 'Point Clouds & Meshes',
     //   image: 'images/example-pointcloud.png',
