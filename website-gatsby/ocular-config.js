@@ -4,7 +4,7 @@ const DOCS = require('../docs/table-of-contents.json');
 const DEPENDENCIES = require('./package.json').dependencies;
 // eslint-disable-next-line import/no-extraneous-dependencies
 const ALIASES = require('ocular-dev-tools/config/ocular.config')({
-  root: resolve(__dirname, '../..')
+  root: resolve(__dirname, '..')
 }).aliases;
 
 // When duplicating example dependencies in website, autogenerate
@@ -30,13 +30,15 @@ module.exports = {
 
   PROJECT_NAME: 'deck.gl',
   PROJECT_ORG: 'uber',
-  PROJECT_URL: 'https://github.com/uber/deck.gl',
+  PROJECT_URL: 'https://deck.gl',
   PROJECT_DESC: 'A WebGL-powered framework for visual exploratory analysis of large datasets.',
   PATH_PREFIX: '/',
 
   FOOTER_LOGO: '',
 
   GA_TRACKING: null,
+
+  LINK_TO_GET_STARTED: '/docs',
 
   // For showing star counts and contributors.
   // Should be like btoa('YourUsername:YourKey') and should be readonly.
@@ -90,95 +92,116 @@ under React\'s functional programming paradigm.',
     },
   ],
 
-  PROJECTS: [],
+  PROJECTS: [
+    {
+      name: 'deck.gl',
+      url: 'https://deck.gl'
+    },
+    {
+      name: 'luma.gl',
+      url: 'https://luma.gl'
+    },
+    {
+      name: 'nebula.gl',
+      url: 'https://nebula.gl'
+    },
+    {
+      name: 'react-map-gl',
+      url: 'https://uber.github.io/react-map-gl'
+    },
+    {
+      name: 'react-vis',
+      url: 'https://uber.github.io/react-vis'
+    }
+  ],
 
   ADDITIONAL_LINKS: [],
 
   EXAMPLES: [
-    {
-      title: 'LineLayer',
-      path: 'examples/line',
-      image: 'images/examples/demo-thumb-line.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/line/app.js')
-    },
-    {
-      title: 'HexagonLayer',
-      path: 'examples/heatmap',
-      image: 'images/examples/demo-thumb-heatmap.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/3d-heatmap/app.js')
-    },
-    {
-      title: 'IconLayer',
-      path: 'examples/icon',
-      image: 'images/examples/demo-thumb-icon.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/icon/app.js')
-    },
-    {
-      title: 'GeoJsonLayer (Polygons)',
-      path: 'examples/geojson',
-      image: 'images/examples/demo-thumb-geojson.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/geojson/app.js')
-    },
-    {
-      title: 'GeoJsonLayer (Paths)',
-      path: 'examples/highway',
-      image: 'images/examples/demo-thumb-highway.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/highway/app.js')
-    },
-    {
-      title: 'ScreenGridLayer',
-      path: 'examples/screengrid',
-      image: 'images/examples/demo-thumb-screengrid.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/screen-grid/app.js')
-    },
-    {
-      title: 'ArcLayer',
-      path: 'examples/arc',
-      image: 'images/examples/demo-thumb-arc.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/arc/app.js')
-    },
-    {
-      title: 'ScatterplotLayer',
-      path: 'examples/scatterplot',
-      image: 'images/examples/demo-thumb-scatterplot.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/scatterplot/app.js')
-    },
-    {
-      title: 'PointCloudLayer',
-      path: 'examples/pointcloud',
-      image: 'images/examples/demo-thumb-point-cloud.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/point-cloud/app.js')
-    },
-    {
-      title: 'TextLayer',
-      path: 'examples/text',
-      image: 'images/examples/demo-thumb-text.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/tagmap/app.js')
-    },
-    {
-      title: 'TileLayer',
-      path: 'examples/maptile',
-      image: 'images/examples/demo-thumb-tile.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/map-tile/app.js')
-    },
-    {
-      title: 'TripsLayer',
-      path: 'examples/trips',
-      image: 'images/examples/demo-thumb-trip.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/trips/app.js')
-    },
-    {
-      title: 'Brushing Layer',
-      path: 'examples/brushing',
-      image: 'images/examples/demo-thumb-brushing.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/brushing/app.js')
-    },
-    {
-      title: '3D Surface Explorer',
-      path: 'examples/plot',
-      image: 'images/examples/demo-thumb-plot.jpg',
-      componentUrl: resolve(__dirname, '../examples/website/plot/app.js')
-    }
+    // {
+    //   title: 'LineLayer',
+    //   path: 'examples/line',
+    //   image: 'images/examples/demo-thumb-line.jpg',
+    //   componentUrl: resolve(__dirname, './templates/examples/example-line-layer.jsx')
+    // },
+    // {
+    //   title: 'HexagonLayer',
+    //   path: 'examples/heatmap',
+    //   image: 'images/examples/demo-thumb-heatmap.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/3d-heatmap/app.js')
+    // },
+    // {
+    //   title: 'IconLayer',
+    //   path: 'examples/icon',
+    //   image: 'images/examples/demo-thumb-icon.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/icon/app.js')
+    // },
+    // {
+    //   title: 'GeoJsonLayer (Polygons)',
+    //   path: 'examples/geojson',
+    //   image: 'images/examples/demo-thumb-geojson.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/geojson/app.js')
+    // },
+    // {
+    //   title: 'GeoJsonLayer (Paths)',
+    //   path: 'examples/highway',
+    //   image: 'images/examples/demo-thumb-highway.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/highway/app.js')
+    // },
+    // {
+    //   title: 'ScreenGridLayer',
+    //   path: 'examples/screengrid',
+    //   image: 'images/examples/demo-thumb-screengrid.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/screen-grid/app.js')
+    // },
+    // {
+    //   title: 'ArcLayer',
+    //   path: 'examples/arc',
+    //   image: 'images/examples/demo-thumb-arc.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/arc/app.js')
+    // },
+    // {
+    //   title: 'ScatterplotLayer',
+    //   path: 'examples/scatterplot',
+    //   image: 'images/examples/demo-thumb-scatterplot.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/scatterplot/app.js')
+    // },
+    // {
+    //   title: 'PointCloudLayer',
+    //   path: 'examples/pointcloud',
+    //   image: 'images/examples/demo-thumb-point-cloud.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/point-cloud/app.js')
+    // },
+    // {
+    //   title: 'TextLayer',
+    //   path: 'examples/text',
+    //   image: 'images/examples/demo-thumb-text.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/tagmap/app.js')
+    // },
+    // {
+    //   title: 'TileLayer',
+    //   path: 'examples/maptile',
+    //   image: 'images/examples/demo-thumb-tile.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/map-tile/app.js')
+    // },
+    // {
+    //   title: 'TripsLayer',
+    //   path: 'examples/trips',
+    //   image: 'images/examples/demo-thumb-trip.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/trips/app.js')
+    // },
+    // {
+    //   title: 'Brushing Layer',
+    //   path: 'examples/brushing',
+    //   image: 'images/examples/demo-thumb-brushing.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/brushing/app.js')
+    // },
+    // {
+    //   title: '3D Surface Explorer',
+    //   path: 'examples/plot',
+    //   image: 'images/examples/demo-thumb-plot.jpg',
+    //   componentUrl: resolve(__dirname, '../examples/website/plot/app.js')
+    // }
 
     // {
     //   title: 'Point Clouds & Meshes',
