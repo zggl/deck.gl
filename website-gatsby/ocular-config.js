@@ -122,25 +122,28 @@ under React's functional programming paradigm.",
 
   ADDITIONAL_LINKS: [],
 
+  INDEX_PAGE_URL: resolve(__dirname, './templates/index.jsx'),
+
   EXAMPLES: [
-    // {
-    //   title: 'LineLayer',
-    //   path: 'examples/line',
-    //   image: 'images/examples/demo-thumb-line.jpg',
-    //   componentUrl: resolve(__dirname, './templates/examples/example-line-layer.jsx')
-    // },
-    // {
-    //   title: 'HexagonLayer',
-    //   path: 'examples/heatmap',
-    //   image: 'images/examples/demo-thumb-heatmap.jpg',
-    //   componentUrl: resolve(__dirname, '../examples/website/3d-heatmap/app.js')
-    // },
-    // {
-    //   title: 'IconLayer',
-    //   path: 'examples/icon',
-    //   image: 'images/examples/demo-thumb-icon.jpg',
-    //   componentUrl: resolve(__dirname, '../examples/website/icon/app.js')
-    // },
+    {
+      title: 'IconLayer',
+      path: 'examples/website/icon',
+      image: 'images/examples/demo-thumb-icon.jpg',
+      componentUrl: resolve(__dirname, './templates/examples/example-icon-layer.jsx')
+    },
+    {
+      title: 'LineLayer',
+      path: 'examples/website/line',
+      image: 'images/examples/demo-thumb-line.jpg',
+      componentUrl: resolve(__dirname, './templates/examples/example-line-layer.jsx')
+    },
+    {
+      title: 'HexagonLayer',
+      path: 'examples/website/3d-heatmap',
+      image: 'images/examples/demo-thumb-heatmap.jpg',
+      componentUrl: resolve(__dirname, './templates/examples/example-hexagon-layer.jsx')
+    }
+
     // {
     //   title: 'GeoJsonLayer (Polygons)',
     //   path: 'examples/geojson',
