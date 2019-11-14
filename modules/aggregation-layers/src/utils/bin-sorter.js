@@ -23,6 +23,7 @@
 // this is where to pass in a function to color the bins by
 // avg/mean/max of specific value of the point
 const defaultGetValue = points => points.length;
+import {clamp, getQuantileDomain, getOrdinalDomain} from './scale-utils';
 
 const defaultProps = {
   getValue: defaultGetValue,
@@ -52,7 +53,7 @@ export default class BinSorter {
 
         h.filteredPoints = hasFilter ? filteredPoints : null;
 
-        const value = getValue(filteredPoints);
+        const value = filteredPoints.length ? getValue(filteredPoints) : null;
 
         if (value !== null && value !== undefined) {
           // filter bins if value is null or undefined
@@ -68,6 +69,19 @@ export default class BinSorter {
       .sort((a, b) => a.value - b.value);
   }
 
+  percentileToIndex([lowerPercentile, upperPercentile]) {
+    const len = this.sortedBins.length;
+    if (len < 2) {
+      return [0, 0];
+    }
+
+    const [lower, upper] = [lowerPercentile, upperPercentile].map(n => clamp(n, 0, 100));
+
+    const lowerIdx = Math.ceil((lower / 100) * (len - 1));
+    const upperIdx = Math.floor((upper / 100) * (len - 1));
+
+    return [lowerIdx, upperIdx];
+  }
   /**
    * Get range of values of all bins
    * @param {Number[]} range
@@ -76,14 +90,40 @@ export default class BinSorter {
    * @return {Array} array of new value range
    */
   getValueRange([lower, upper]) {
-    const len = this.sortedBins.length;
-    if (!len) {
-      return [0, 0];
+    if (!this.sortedBins.length) {
+      return [];
     }
-    const lowerIdx = Math.ceil((lower / 100) * (len - 1));
-    const upperIdx = Math.floor((upper / 100) * (len - 1));
+    const [lowerIdx, upperIdx] = this.percentileToIndex([lower, upper]);
 
     return [this.sortedBins[lowerIdx].value, this.sortedBins[upperIdx].value];
+  }
+
+  getValueDomainByScale(scale, [lower = 0, upper = 100] = []) {
+    if (!this.sortedBins.length) {
+      return [];
+    }
+    const indexEdge = this.percentileToIndex([lower, upper]);
+
+    return this.getScaleDomain(scale, indexEdge);
+  }
+
+  getScaleDomain(scaleType, [lowerIdx, upperIdx]) {
+    const bins = this.sortedBins;
+
+    switch (scaleType) {
+      case 'quantize':
+      case 'linear':
+        return [bins[lowerIdx].value, bins[upperIdx].value];
+
+      case 'quantile':
+        return getQuantileDomain(bins.slice(lowerIdx, upperIdx + 1), d => d.value);
+
+      case 'ordinal':
+        return getOrdinalDomain(bins, d => d.value);
+
+      default:
+        return [bins[lowerIdx].value, bins[upperIdx].value];
+    }
   }
 
   /**
