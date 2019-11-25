@@ -403,8 +403,7 @@ export default class CPUAggregator {
   getDimensionValueDomain(props, dimensionUpdater) {
     const {getDomain, key} = dimensionUpdater;
     const {
-      triggers: {lowerPercentile, upperPercentile, scaleType},
-      onSet
+      triggers: {lowerPercentile, upperPercentile, scaleType}
     } = getDomain;
     const valueDomain = this.state.dimensions[key].sortedBins.getValueDomainByScale(
       props[scaleType.prop],
