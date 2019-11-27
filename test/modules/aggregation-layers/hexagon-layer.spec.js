@@ -51,7 +51,7 @@ test('HexagonLayer', t => {
 // props to initialize layer with
 // update props
 // asserts on the resulting layer
-test('HexagonLayer#updateLayer', t => {
+test.only('HexagonLayer#updateLayer', t => {
   // assert on state property updates after layer.prop change
   function assertStateUpdate(shouldUpdate, prop) {
     return function onAfterUpdate({layer, oldState: oldLayerState}) {
@@ -99,7 +99,7 @@ test('HexagonLayer#updateLayer', t => {
         }
       }
     };
-    return assertStateUpdate(shouldUpdate, 'getFitlerBy');
+    return assertStateUpdate(shouldUpdate, 'dataFilter');
   }
   function getChecksForRadiusChange() {
     const shouldUpdate = {

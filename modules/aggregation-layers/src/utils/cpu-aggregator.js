@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-console */
+/* eslint-disable no-invalid-this */
 // Copyright (c) 2015 - 2018 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,109 +21,176 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 import BinSorter from './bin-sorter';
-import {getQuantizeScale, getLinearScale, getQuantileScale, getOrdinalScale} from './scale-utils';
+import {getScaleFunctionByScaleType} from './scale-utils';
 import {getValueFunc} from './aggregation-operation-utils';
 
 function nop() {}
 
-const dimensionSteps = ['getBins', 'getDomain', 'getScaleFunc'];
+function getDimensionSortedBins(step, props, dimensionUpdater) {
+  console.log('getDimensionSortedBins');
+  const {key} = dimensionUpdater;
+  const {getValue} = this.state.dimensions[key];
+
+  const sortedBins = new BinSorter(this.state.layerData.data || [], {
+    getValue,
+    filterData: props.filterData
+  });
+  this.setDimensionState(key, {sortedBins});
+  // this.getDimensionValueDomain(props, dimensionUpdater);
+}
+
+function getDimensionValueDomain(step, props, dimensionUpdater) {
+  const {key} = dimensionUpdater;
+  const {
+    triggers: {lowerPercentile, upperPercentile},
+    onSet
+  } = step;
+  if (!this.state.dimensions[key].sortedBins) {
+    // the previous step should set sortedBins, if not, something went wrong
+    return;
+  }
+
+  const valueDomain = this.state.dimensions[key].sortedBins.getValueRange([
+    props[lowerPercentile.prop],
+    props[upperPercentile.prop]
+  ]);
+
+  if (typeof onSet === 'object' && typeof props[onSet.props] === 'function') {
+    props[onSet.props](valueDomain);
+  }
+
+  this.setDimensionState(key, {valueDomain});
+}
+
+function getDimensionScale(step, props, dimensionUpdater) {
+  console.log('getDimensionScale');
+
+  const {key} = dimensionUpdater;
+  const {domain, range, scaleType} = step.triggers;
+  if (!this.state.dimensions[key].valueDomain) {
+    // the previous step should set valueDomain, if not, something went wrong
+    return;
+  }
+
+  const dimensionRange = props[range.prop];
+  const dimensionDomain = props[domain.prop] || this.state.dimensions[key].valueDomain;
+  const getScaleFunction = getScaleFunctionByScaleType(props[scaleType.prop]);
+  const scaleFunc = getScaleFunction(dimensionDomain, dimensionRange);
+
+  this.setDimensionState(key, {scaleFunc});
+}
+
 const defaultDimensions = [
   {
     key: 'fillColor',
     accessor: 'getFillColor',
     pickingInfo: 'colorValue',
-    getBins: {
-      triggers: {
-        value: {
-          prop: 'getColorValue',
-          updateTrigger: 'getColorValue'
+    nullValue: [0, 0, 0, 0],
+    updateSteps: [
+      {
+        key: 'getBins',
+        triggers: {
+          value: {
+            prop: 'getColorValue',
+            updateTrigger: 'getColorValue'
+          },
+          weight: {
+            prop: 'getColorWeight',
+            updateTrigger: 'getColorWeight'
+          },
+          aggregation: {
+            prop: 'colorAggregation'
+          },
+          filterData: {
+            prop: 'filterData',
+            updateTrigger: 'filterData'
+          }
         },
-        weight: {
-          prop: 'getColorWeight',
-          updateTrigger: 'getColorWeight'
+        updater: getDimensionSortedBins
+      },
+      {
+        key: 'getDomain',
+        triggers: {
+          lowerPercentile: {
+            prop: 'lowerPercentile'
+          },
+          upperPercentile: {
+            prop: 'upperPercentile'
+          }
         },
-        aggregation: {
-          prop: 'colorAggregation'
-        },
-        filterData: {
-          prop: 'filterData',
-          updateTrigger: 'filterData'
-        }
-      }
-    },
-    getDomain: {
-      triggers: {
-        lowerPercentile: {
-          prop: 'lowerPercentile'
-        },
-        upperPercentile: {
-          prop: 'upperPercentile'
-        },
-        scaleType: {
-          prop: 'colorScaleType'
+        updater: getDimensionValueDomain,
+        onSet: {
+          props: 'onSetColorDomain'
         }
       },
-      onSet: {
-        props: 'onSetColorDomain'
+      {
+        key: 'getScaleFunc',
+        triggers: {
+          domain: {prop: 'colorDomain'},
+          range: {prop: 'colorRange'},
+          scaleType: {prop: 'colorScaleType'}
+        },
+        updater: getDimensionScale
       }
-    },
-    getScaleFunc: {
-      triggers: {
-        domain: {prop: 'colorDomain'},
-        range: {prop: 'colorRange'}
-      }
-    },
-    nullValue: [0, 0, 0, 0]
+    ]
   },
   {
     key: 'elevation',
     accessor: 'getElevation',
     pickingInfo: 'elevationValue',
-    getBins: {
-      triggers: {
-        value: {
-          prop: 'getElevationValue',
-          updateTrigger: 'getElevationValue'
+    nullValue: -1,
+    updateSteps: [
+      {
+        key: 'getBins',
+        triggers: {
+          value: {
+            prop: 'getElevationValue',
+            updateTrigger: 'getElevationValue'
+          },
+          weight: {
+            prop: 'getElevationWeight',
+            updateTrigger: 'getElevationWeight'
+          },
+          aggregation: {
+            prop: 'elevationAggregation'
+          },
+          filterData: {
+            prop: 'filterData',
+            updateTrigger: 'filterData'
+          }
         },
-        weight: {
-          prop: 'getElevationWeight',
-          updateTrigger: 'getElevationWeight'
-        },
-        aggregation: {
-          prop: 'elevationAggregation'
-        },
-        filterData: {
-          prop: 'filterData',
-          updateTrigger: 'filterData'
-        }
-      }
-    },
-    getDomain: {
-      triggers: {
-        lowerPercentile: {
-          prop: 'elevationLowerPercentile'
-        },
-        upperPercentile: {
-          prop: 'elevationUpperPercentile'
-        },
-        scaleType: {
-          prop: 'elevationScaleType'
-        }
+        updater: getDimensionSortedBins
       },
-      onSet: {
-        props: 'onSetElevationDomain'
+      {
+        key: 'getDomain',
+        triggers: {
+          lowerPercentile: {
+            prop: 'elevationLowerPercentile'
+          },
+          upperPercentile: {
+            prop: 'elevationUpperPercentile'
+          }
+        },
+        onSet: {
+          props: 'onSetElevationDomain'
+        },
+        updater: getDimensionValueDomain
+      },
+      {
+        key: 'getScaleFunc',
+        triggers: {
+          domain: {prop: 'elevationDomain'},
+          range: {prop: 'elevationRange'},
+          scaleType: {prop: 'elevationScaleType'}
+        },
+        updater: getDimensionScale
       }
-    },
-    getScaleFunc: {
-      triggers: {
-        domain: {prop: 'elevationDomain'},
-        range: {prop: 'elevationRange'}
-      }
-    },
-    nullValue: -1
+    ]
   }
 ];
+
 const defaultGetCellSize = props => props.cellSize;
+
 export default class CPUAggregator {
   constructor(opts) {
     this.state = {
@@ -155,15 +225,22 @@ export default class CPUAggregator {
   updateState({oldProps, props, changeFlags}, viewport) {
     this.updateGetValueFuncs(oldProps, props, changeFlags);
     const reprojectNeeded = this.needsReProjectPoints(oldProps, props, changeFlags);
+    let dimensionChanges = [];
 
     if (changeFlags.dataChanged || reprojectNeeded) {
       // project data into hexagons, and get sortedColorBins
       this.getAggregatedData(props, viewport);
+
+      // update all dimensions
+      for (const dim in this.dimensionUpdaters) {
+        const updaters = this.accumulateUpdaters(0, props, this.dimensionUpdaters[dim]);
+        dimensionChanges = dimensionChanges.concat(updaters);
+      }
     } else {
-      const dimensionChanges = this.getDimensionChanges(oldProps, props, changeFlags) || [];
-      // this here is layer
-      dimensionChanges.forEach(f => typeof f === 'function' && f());
+      dimensionChanges = this.getDimensionChanges(oldProps, props, changeFlags) || [];
     }
+
+    dimensionChanges.forEach(f => typeof f === 'function' && f());
 
     return this.state;
   }
@@ -205,19 +282,14 @@ export default class CPUAggregator {
     this.changeFlags = {
       layerData: true
     };
-    this.getSortedBins(props);
   }
 
   updateGetValueFuncs(oldProps, props, changeFlags) {
     for (const key in this.dimensionUpdaters) {
-      const {value, weight, aggregation} = this.dimensionUpdaters[key].getBins.triggers;
+      const getBins = this.dimensionUpdaters[key].updateSteps[0];
+      const {value, weight, aggregation} = getBins.triggers;
       let getValue = props[value.prop];
-      const getValueChanged = this.needUpdateDimensionStep(
-        this.dimensionUpdaters[key].getBins,
-        oldProps,
-        props,
-        changeFlags
-      );
+      const getValueChanged = this.needUpdateDimensionStep(getBins, oldProps, props, changeFlags);
 
       if (getValueChanged && getValue === null) {
         // If `getValue` is not provided from props, build it with aggregation and weight.
@@ -248,23 +320,19 @@ export default class CPUAggregator {
     dimensions.forEach(dimension => {
       const {key} = dimension;
       this.dimensionUpdaters[key] = this.getDimensionUpdaters(dimension);
-      this.state.dimensions[key] = {
-        getValue: null,
-        domain: null,
-        sortedBins: null,
-        scaleFunc: nop
-      };
     });
   }
 
-  getDimensionUpdaters({key, accessor, pickingInfo, getBins, getDomain, getScaleFunc, nullValue}) {
+  _addStep(key, updateStep) {
+    this.state.dimensions[key][updateStep.result] = updateStep.default;
+  }
+
+  getDimensionUpdaters({key, accessor, pickingInfo, updateSteps, nullValue}) {
     return {
       key,
       accessor,
       pickingInfo,
-      getBins: Object.assign({updater: this.getDimensionSortedBins}, getBins),
-      getDomain: Object.assign({updater: this.getDimensionValueDomain}, getDomain),
-      getScaleFunc: Object.assign({updater: this.getDimensionScale}, getScaleFunc),
+      updateSteps,
       attributeAccessor: this.getSubLayerDimensionAttribute(key, nullValue)
     };
   }
@@ -274,19 +342,6 @@ export default class CPUAggregator {
     // dimension step is the value, domain, scaleFunction of each dimension
     // each step is an object with properties links to layer prop and whether the prop is
     // controlled by updateTriggers
-    // getBins: {
-    //   value: {
-    //     prop: 'getElevationValue',
-    //     updateTrigger: 'getElevationValue'
-    //   },
-    //   weight: {
-    //     prop: 'getElevationWeight',
-    //     updateTrigger: 'getElevationWeight'
-    //   },
-    //   aggregation: {
-    //     prop: 'elevationAggregation'
-    //   }
-    // }
     return Object.values(dimensionStep.triggers).some(item => {
       if (item.updateTrigger) {
         // check based on updateTriggers change first
@@ -301,30 +356,32 @@ export default class CPUAggregator {
     });
   }
 
-  getDimensionChanges(oldProps, props, changeFlags) {
-    // const {dimensionUpdaters} = this.state;
+  accumulateUpdaters(step, props, dimUpdater) {
     const updaters = [];
+    for (let i = step; i < dimUpdater.updateSteps.length; i++) {
+      if (typeof dimUpdater.updateSteps[i].updater === 'function') {
+        updaters.push(
+          dimUpdater.updateSteps[i].updater.bind(this, dimUpdater.updateSteps[i], props, dimUpdater)
+        );
+      }
+    }
+
+    return updaters;
+  }
+
+  getDimensionChanges(oldProps, props, changeFlags) {
+    let updaters = [];
 
     // get dimension to be updated
     for (const key in this.dimensionUpdaters) {
       // return the first triggered updater for each dimension
-      const needUpdate = dimensionSteps.find(step =>
-        this.needUpdateDimensionStep(
-          this.dimensionUpdaters[key][step],
-          oldProps,
-          props,
-          changeFlags
-        )
+      const dimUpdater = this.dimensionUpdaters[key];
+      const needUpdateStep = dimUpdater.updateSteps.findIndex(step =>
+        this.needUpdateDimensionStep(step, oldProps, props, changeFlags)
       );
 
-      if (needUpdate) {
-        updaters.push(
-          this.dimensionUpdaters[key][needUpdate].updater.bind(
-            this,
-            props,
-            this.dimensionUpdaters[key]
-          )
-        );
+      if (needUpdateStep > -1) {
+        updaters = this.accumulateUpdaters(needUpdateStep, props, dimUpdater);
       }
     }
 
@@ -336,102 +393,32 @@ export default class CPUAggregator {
     const updateTriggers = {};
 
     for (const key in this.dimensionUpdaters) {
-      const {accessor} = this.dimensionUpdaters[key];
+      const {accessor, updateSteps} = this.dimensionUpdaters[key];
       // fold dimension triggers into each accessor
       updateTriggers[accessor] = {};
 
-      dimensionSteps.forEach(step => {
-        Object.values(this.dimensionUpdaters[key][step].triggers).forEach(
-          ({prop, updateTrigger}) => {
-            if (updateTrigger) {
-              // if prop is based on updateTrigger e.g. getColorValue, getColorWeight
-              // and updateTriggers is passed in from layer prop
-              // fold the updateTriggers into accessor
-              const fromProp = _updateTriggers[updateTrigger];
-              if (typeof fromProp === 'object' && !Array.isArray(fromProp)) {
-                // if updateTrigger is an object spread it
-                Object.assign(updateTriggers[accessor], fromProp);
-              } else if (fromProp !== undefined) {
-                updateTriggers[accessor][prop] = fromProp;
-              }
-            } else {
-              // if prop is not based on updateTrigger
-              updateTriggers[accessor][prop] = props[prop];
+      updateSteps.forEach(step => {
+        Object.values(step.triggers || []).forEach(({prop, updateTrigger}) => {
+          if (updateTrigger) {
+            // if prop is based on updateTrigger e.g. getColorValue, getColorWeight
+            // and updateTriggers is passed in from layer prop
+            // fold the updateTriggers into accessor
+            const fromProp = _updateTriggers[updateTrigger];
+            if (typeof fromProp === 'object' && !Array.isArray(fromProp)) {
+              // if updateTrigger is an object spread it
+              Object.assign(updateTriggers[accessor], fromProp);
+            } else if (fromProp !== undefined) {
+              updateTriggers[accessor][prop] = fromProp;
             }
+          } else {
+            // if prop is not based on updateTrigger
+            updateTriggers[accessor][prop] = props[prop];
           }
-        );
+        });
       });
     }
 
     return updateTriggers;
-  }
-
-  getScaleFunctionByScaleType(scaleType) {
-    switch (scaleType) {
-      case 'quantize':
-        return getQuantizeScale;
-      case 'linear':
-        return getLinearScale;
-      case 'quantile':
-        return getQuantileScale;
-      case 'ordinal':
-        return getOrdinalScale;
-
-      default:
-        return getQuantizeScale;
-    }
-  }
-
-  getSortedBins(props) {
-    for (const key in this.dimensionUpdaters) {
-      this.getDimensionSortedBins(props, this.dimensionUpdaters[key]);
-    }
-  }
-
-  getDimensionSortedBins(props, dimensionUpdater) {
-    const {key} = dimensionUpdater;
-    const {getValue} = this.state.dimensions[key];
-
-    const sortedBins = new BinSorter(this.state.layerData.data || [], {
-      getValue,
-      filterData: props.filterData
-    });
-    this.setDimensionState(key, {sortedBins});
-    this.getDimensionValueDomain(props, dimensionUpdater);
-  }
-
-  getDimensionValueDomain(props, dimensionUpdater) {
-    const {getDomain, key} = dimensionUpdater;
-    const {
-      triggers: {lowerPercentile, upperPercentile, scaleType}
-    } = getDomain;
-    const valueDomain = this.state.dimensions[key].sortedBins.getValueDomainByScale(
-      props[scaleType.prop],
-      [props[lowerPercentile.prop], props[upperPercentile.prop]]
-    );
-
-    // if (typeof onSet === 'object' && typeof props[onSet.props] === 'function') {
-    //   props[onSet.props](valueDomain);
-    // }
-
-    this.setDimensionState(key, {valueDomain});
-    this.getDimensionScale(props, dimensionUpdater);
-  }
-
-  getDimensionScale(props, dimensionUpdater) {
-    const {key, getScaleFunc, getDomain} = dimensionUpdater;
-    const {domain, range} = getScaleFunc.triggers;
-    const {scaleType} = getDomain.triggers;
-    const {onSet} = getDomain;
-    const dimensionRange = props[range.prop];
-    const dimensionDomain = props[domain.prop] || this.state.dimensions[key].valueDomain;
-    const getScaleFunction = this.getScaleFunctionByScaleType(props[scaleType.prop]);
-    const scaleFunc = getScaleFunction(dimensionDomain, dimensionRange);
-
-    if (typeof onSet === 'object' && typeof props[onSet.props] === 'function') {
-      props[onSet.props](scaleFunc.domain());
-    }
-    this.setDimensionState(key, {scaleFunc});
   }
 
   getSubLayerDimensionAttribute(key, nullValue) {
@@ -443,6 +430,7 @@ export default class CPUAggregator {
         // no points left in bin after filtering
         return nullValue;
       }
+
       const cv = bin && bin.value;
       const domain = scaleFunc.domain();
 
