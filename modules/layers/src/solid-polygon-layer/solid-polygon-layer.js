@@ -25,7 +25,7 @@ import {Model, Geometry, hasFeature, FEATURES} from '@luma.gl/core';
 // Polygon geometry generation is managed by the polygon tesselator
 import PolygonTesselator from './polygon-tesselator';
 
-import vsTop from './solid-polygon-layer-vertex-top.glsl';
+// import vsTop from './solid-polygon-layer-vertex-top.glsl';
 import vsSide from './solid-polygon-layer-vertex-side.glsl';
 import fs from './solid-polygon-layer-fragment.glsl';
 
@@ -131,23 +131,23 @@ export default class SolidPolygonLayer extends Layer {
           }
         }
       },
-      fillColors: {
-        alias: 'colors',
-        size: this.props.colorFormat.length,
-        type: GL.UNSIGNED_BYTE,
-        normalized: true,
-        transition: ATTRIBUTE_TRANSITION,
-        accessor: 'getFillColor',
-        defaultValue: DEFAULT_COLOR,
-        shaderAttributes: {
-          fillColors: {
-            divisor: 0
-          },
-          instanceFillColors: {
-            divisor: 1
-          }
-        }
-      },
+      // fillColors: {
+      //   alias: 'colors',
+      //   size: this.props.colorFormat.length,
+      //   type: GL.UNSIGNED_BYTE,
+      //   normalized: true,
+      //   transition: ATTRIBUTE_TRANSITION,
+      //   accessor: 'getFillColor',
+      //   defaultValue: DEFAULT_COLOR,
+      //   shaderAttributes: {
+      //     fillColors: {
+      //       divisor: 0
+      //     },
+      //     instanceFillColors: {
+      //       divisor: 1
+      //     }
+      //   }
+      // },
       lineColors: {
         alias: 'colors',
         size: this.props.colorFormat.length,
@@ -165,19 +165,19 @@ export default class SolidPolygonLayer extends Layer {
           }
         }
       },
-      pickingColors: {
-        size: 3,
-        type: GL.UNSIGNED_BYTE,
-        accessor: (object, {index, target: value}) => this.encodePickingColor(index, value),
-        shaderAttributes: {
-          pickingColors: {
-            divisor: 0
-          },
-          instancePickingColors: {
-            divisor: 1
-          }
-        }
-      }
+      // pickingColors: {
+      //   size: 3,
+      //   type: GL.UNSIGNED_BYTE,
+      //   accessor: (object, {index, target: value}) => this.encodePickingColor(index, value),
+      //   shaderAttributes: {
+      //     pickingColors: {
+      //       divisor: 0
+      //     },
+      //     instancePickingColors: {
+      //       divisor: 1
+      //     }
+      //   }
+      // }
     });
     /* eslint-enable max-len */
   }
@@ -199,16 +199,16 @@ export default class SolidPolygonLayer extends Layer {
         sideModel.setDrawMode(GL.LINE_STRIP);
         sideModel.setUniforms({isWireframe: true}).draw();
       }
-      if (filled) {
-        sideModel.setDrawMode(GL.TRIANGLE_FAN);
-        sideModel.setUniforms({isWireframe: false}).draw();
-      }
+      // if (filled) {
+      //   sideModel.setDrawMode(GL.TRIANGLE_FAN);
+      //   sideModel.setUniforms({isWireframe: false}).draw();
+      // }
     }
 
-    if (topModel) {
-      topModel.setVertexCount(polygonTesselator.get('indices').length);
-      topModel.setUniforms(renderUniforms).draw();
-    }
+    // if (topModel) {
+    //   topModel.setVertexCount(polygonTesselator.get('indices').length);
+    //   topModel.setUniforms(renderUniforms).draw();
+    // }
   }
 
   updateState(updateParams) {
@@ -275,27 +275,27 @@ export default class SolidPolygonLayer extends Layer {
     let topModel;
     let sideModel;
 
-    if (filled) {
-      const shaders = this.getShaders(vsTop);
-      shaders.defines.NON_INSTANCED_MODEL = 1;
+    // if (filled) {
+    //   const shaders = this.getShaders(vsTop);
+    //   shaders.defines.NON_INSTANCED_MODEL = 1;
 
-      topModel = new Model(
-        gl,
-        Object.assign({}, shaders, {
-          id: `${id}-top`,
-          drawMode: GL.TRIANGLES,
-          attributes: {
-            vertexPositions: new Float32Array([0, 1])
-          },
-          uniforms: {
-            isWireframe: false,
-            isSideVertex: false
-          },
-          vertexCount: 0,
-          isIndexed: true
-        })
-      );
-    }
+    //   topModel = new Model(
+    //     gl,
+    //     Object.assign({}, shaders, {
+    //       id: `${id}-top`,
+    //       drawMode: GL.TRIANGLES,
+    //       attributes: {
+    //         vertexPositions: new Float32Array([0, 1])
+    //       },
+    //       uniforms: {
+    //         isWireframe: false,
+    //         isSideVertex: false
+    //       },
+    //       vertexCount: 0,
+    //       isIndexed: true
+    //     })
+    //   );
+    // }
     if (extruded) {
       sideModel = new Model(
         gl,

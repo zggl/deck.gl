@@ -7,9 +7,9 @@ import perfLayerExamples from './perf-layers';
 
 export default {
   ...coreLayerExamples,
-  ...meshLayerExamples,
-  ...aggregationLayerExamples,
-  ...additionalLayerExamples,
-  ...infovisLayerExamples,
-  ...perfLayerExamples
+  // ...meshLayerExamples,
+  // ...aggregationLayerExamples,
+  // ...additionalLayerExamples,
+  // ...infovisLayerExamples,
+  // ...perfLayerExamples
 };

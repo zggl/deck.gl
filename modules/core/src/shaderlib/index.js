@@ -39,12 +39,12 @@ const SHADER_HOOKS = [
 export function createProgramManager(gl) {
   const programManager = ProgramManager.getDefaultProgramManager(gl);
 
-  for (const shaderModule of DEFAULT_MODULES) {
-    programManager.addDefaultModule(shaderModule);
-  }
-  for (const shaderHook of SHADER_HOOKS) {
-    programManager.addShaderHook(shaderHook);
-  }
+  // for (const shaderModule of DEFAULT_MODULES) {
+  //   programManager.addDefaultModule(shaderModule);
+  // }
+  // for (const shaderHook of SHADER_HOOKS) {
+  //   programManager.addShaderHook(shaderHook);
+  // }
 
   return programManager;
 }

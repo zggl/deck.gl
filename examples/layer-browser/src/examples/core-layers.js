@@ -402,17 +402,6 @@ const BitmapLayerExample = {
 export default {
   'Core Layers - LngLat': {
     GeoJsonLayer: GeoJsonLayerExample,
-    'GeoJsonLayer (Extruded)': GeoJsonLayerExtrudedExample,
-    PolygonLayer: PolygonLayerExample,
-    'PolygonLayer (Flat)': PolygonLayerBinaryExample,
-    PathLayer: PathLayerExample,
-    ScatterplotLayer: ScatterplotLayerExample,
-    ArcLayer: ArcLayerExample,
-    LineLayer: LineLayerExample,
-    IconLayer: IconLayerExample,
-    'IconLayer (auto packing)': IconLayerAutoPackingExample,
-    TextLayer: TextLayerExample,
-    BitmapLayer: BitmapLayerExample,
-    ColumnLayer: ColumnLayerExample
+    'GeoJsonLayer (Extruded)': GeoJsonLayerExtrudedExample
   }
 };

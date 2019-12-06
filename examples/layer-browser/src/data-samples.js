@@ -14,6 +14,7 @@ export {default as trips} from '../data/trips.json';
 export {default as SFTrips} from '../data/sf.trips';
 export {default as iconAtlas} from '../data/icon-atlas.json';
 export {default as s2cells} from '../data/sf.s2cells.json';
+choropleths.features = choropleths.features.slice(0, 1);
 export {choropleths};
 
 export const positionOrigin = [-122.42694203247012, 37.751537058389985];
