@@ -18,9 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import {Layer, project32, gouraudLighting, picking} from '@deck.gl/core';
+import {Layer, project32, gouraudLighting, picking, getUniformsFromViewport} from '@deck.gl/core';
 import GL from '@luma.gl/constants';
 import {Model, Geometry, hasFeature, FEATURES} from '@luma.gl/core';
+
 
 // Polygon geometry generation is managed by the polygon tesselator
 import PolygonTesselator from './polygon-tesselator';
@@ -66,7 +67,7 @@ export default class SolidPolygonLayer extends Layer {
       vs,
       fs,
       defines: {},
-      modules: [project32]
+      modules: []
     });
   }
 
@@ -186,7 +187,9 @@ export default class SolidPolygonLayer extends Layer {
     const {extruded, filled, wireframe, elevationScale} = this.props;
     const {topModel, sideModel, polygonTesselator} = this.state;
 
-    const renderUniforms = Object.assign({}, uniforms, {
+    const viewport = this.context.viewport;
+
+    const renderUniforms = Object.assign({}, uniforms, getUniformsFromViewport({viewport}), {
       extruded: Boolean(extruded),
       elevationScale
     });

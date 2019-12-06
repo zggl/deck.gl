@@ -64,6 +64,8 @@ export {
   shadow
 } from './shaderlib';
 
+export {getUniformsFromViewport} from './shaderlib/project/viewport-uniforms'
+
 export {default as View} from './views/view';
 export {default as MapView} from './views/map-view';
 export {default as FirstPersonView} from './views/first-person-view';
