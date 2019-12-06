@@ -66,7 +66,7 @@ export default class App extends PureComponent {
 
     this.state = props.state || {
       activeExamples: {
-        "GeoJsonLayer (Extruded)": true
+        'GeoJsonLayer (Extruded)': true
       },
       settings: {
         shadow: false,

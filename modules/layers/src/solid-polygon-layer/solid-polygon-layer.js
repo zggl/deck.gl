@@ -66,7 +66,7 @@ export default class SolidPolygonLayer extends Layer {
       vs,
       fs,
       defines: {},
-      modules: [project32, gouraudLighting, picking]
+      modules: [project32]
     });
   }
 

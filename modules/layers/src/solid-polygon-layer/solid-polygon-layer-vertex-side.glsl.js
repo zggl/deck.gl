@@ -109,12 +109,8 @@ void calculatePosition(PolygonProps props) {
 
   gl_Position = project_position_to_clipspace(pos, pos64Low, vec3(0.), geometry.position);
 
-  if (extruded) {
-    vec3 lightColor = lighting_getLightColor(colors.rgb, project_uCameraPosition, geometry.position.xyz, normal);
-    vColor = vec4(lightColor, colors.a * opacity);
-  } else {
-    vColor = vec4(colors.rgb, colors.a * opacity);
-  }
+
+  vColor = vec4(colors.rgb, colors.a * opacity);
 }
 
 void main(void) {
