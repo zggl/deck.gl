@@ -93,13 +93,10 @@ attribute vec4 instanceLineColors;
 attribute vec2 vertexPositions;
 attribute float vertexValid;
 
-uniform bool extruded;
-uniform bool isWireframe;
 uniform float elevationScale;
 uniform float opacity;
 
 varying vec4 vColor;
-varying float isValid;
 
 void main(void) {
   vec3 pos;
@@ -108,7 +105,6 @@ void main(void) {
 
   pos = mix(instancePositions, nextPositions, vertexPositions.x);
   pos64Low = mix(instancePositions64Low, nextPositions64Low, vertexPositions.x);
-  isValid = vertexValid;
 
   pos.z += instanceElevations * vertexPositions.y * elevationScale;
 
