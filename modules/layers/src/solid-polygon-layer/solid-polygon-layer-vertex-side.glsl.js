@@ -21,6 +21,7 @@
 import main from './solid-polygon-layer-vertex-main.glsl';
 
 export default `\
+#version 300 es
 #define SHADER_NAME solid-polygon-layer-vertex-shader-side
 #define IS_SIDE_VERTEX
 
@@ -83,20 +84,20 @@ vec4 project_position_to_clipspace(
 // END PROJECT 32
 ////////////////////////////
 
-attribute vec3 instancePositions;
-attribute vec3 instancePositions64Low;
-attribute vec3 nextPositions;
-attribute vec3 nextPositions64Low;
-attribute float instanceElevations;
-attribute vec4 instanceLineColors;
+layout(location=0) in vec3 instancePositions;
+layout(location=1) in vec3 instancePositions64Low;
+layout(location=2) in vec3 nextPositions;
+layout(location=3) in vec3 nextPositions64Low;
+layout(location=4) in float instanceElevations;
+layout(location=5) in vec4 instanceLineColors;
 
-attribute vec2 vertexPositions;
-attribute float vertexValid;
+layout(location=6) in vec2 vertexPositions;
+layout(location=7) in float vertexValid;
 
 uniform float elevationScale;
 uniform float opacity;
 
-varying vec4 vColor;
+out vec4 vColor;
 
 void main(void) {
   vec3 pos;

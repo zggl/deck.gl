@@ -102,11 +102,11 @@ export default class SolidPolygonLayer extends Layer {
             offset: 0,
             divisor: 0
           },
-          instancePositions: {
+          "0": {
             offset: 0,
             divisor: 1
           },
-          nextPositions: {
+          "2": {
             offset: 12,
             divisor: 1
           }
