@@ -10,13 +10,17 @@ This roadmap outlines directions for the deck.gl `TileLayer` from v8.1 onwards. 
 
 ## Background 
 
-As of deck.gl v8.0 release, the `TileLayer` has been a highly appreciated addition to deck.gl. It has been available for a couple of releases and has stabilized through a series of . However: 
-- The similar `Tile3DLayer` has added features like caching, request scheduling and additive parent-child refinements that are missing in the 2D TileLayer
-- A number of ambitious user PRs proposing to extend the `TileLayer` in new directions show how important this layer is to deck.gl users. Without a clear roadmap it is hard to review and accept these PRs in a timely way.
+As of deck.gl v8.0 release, the `TileLayer` has been a highly appreciated addition to deck.gl. It has been available for a couple of releases and has stabilized through a series of bug fix and improvement PRs and is already quite usable. 
+
+However light usage of the layer quickly discovers that a number of things are lacking.
+- key features like caching, request scheduling and additive parent-child refinements have now been added to the `Tile3DLayer` but are missing in the similar but simpler 2D `TileLayer`.
+- A number of ambitious user PRs proposing to extend the `TileLayer` in new directions show how important this layer is to deck.gl users. Without a clear roadmap it is hard to provide guidance on and accept these PRs in a timely way.
+- ...
+
 
 ## Goals and Aspirations
 
-To be able to provide fair and unbiased feedback on the ambitious PRs and feature requests being opened on the `TileLayer`, it is important to define what the layer is supposed to be and not to be.
+To be able to provide fair and consistent feedback on the ambitious PRs and feature requests being opened on the `TileLayer`, it is important to define what the layer is supposed to be and not to be.
 
 Goals
 - High performance tile loading
@@ -26,13 +30,15 @@ Goals
 Non-goals
 - The `TileLayer` is NOT indended to be a full replacement for a base map (e.g. a mapbox base map) as that involves a long tail of features to achieve the required level of polish).
 
+## Current Issues
 
-### Issues with v8.0 Tile Layer
+### Known Issues with v8.0 Tile Layer
 
-- BUG: Parent tiles are not hidden - When opacity != 1 overlapping tiles are visible
-- No visual optimizations (e.g. load tiles from center out, blend in child-tiles, ...)
+- BUG: Parent tiles are not hidden - When opacity != 1 overlapping child/parent tiles are visible
 - Tile caching scheme is naive
 - No request scheduling - tiles no longer in view (e.g. after quick pans) can still be loaded, request queue floods with "low priority" tile requests starving other loading, ...
+- No visual optimizations (e.g. load tiles from center out, blend in child-tiles, ...)
+
 
 ### PRs
 
@@ -87,14 +93,18 @@ Also see `3DTileLayer` with `potree` examples - Often non-geospatial.
 
 ## Way forward for Open PRs
 
+To help providing feedback in the PRs themselves, it may help discuss how they fit into the TileLayer roadmap.
+
 ### PR [`MVTTileLayer`](https://github.com/uber/deck.gl/pull/3935)
 
-- Worker Thread loading of [MVT](https://github.com/mapbox/vector-tile-js) (mapbox vector tiles) - Remove, and build/use new `@loaders.gl/mvt` / `@loaders.gl/mapbox-vector-tiles` module.
-- Tile Cache - Generalize and put in core TileLayer (possible loaders.gl)
-- Composite Geometry - keep this on application side, just make sure TileLayer offers necessary hooks.
+Proposed feedback:
+- Worker Thread loading of [MVT](https://github.com/mapbox/vector-tile-js) (mapbox vector tiles) - Remove, and build/use new `@loaders.gl/mvt` (or `@loaders.gl/mapbox-vector-tile`) module.
+- Tile Cache - Generalize and put in core TileLayer (or possibly share TileCache with `Tileset3D` in loaders.gl)
+- Composite Geometry - do not merge, keep this on application side, just make sure `TileLayer` offers necessary hooks that app needs.
 
 ### PR [Non-geospatial `TileLayer`](https://github.com/uber/deck.gl/pull/4117)
 
+Proposed feedback:
 - Do not create a separate base class
 - Provide the necessary hooks in the standard `TileLayer` (or `Tileset2D` class) to control coordinate mapping to tiles 
    - `tileSize`,
@@ -104,6 +114,6 @@ Also see `3DTileLayer` with `potree` examples - Often non-geospatial.
 
 ### PR [TerrainLayer WIP](https://github.com/uber/deck.gl/pull/3984)
 
-This PR is just an example of how the existing TileLayer can be used to do new things. 
-- Look at the PR and see if any simplifications could be done by changing the TileLayer.
+This PR is just an example of how the existing TileLayer can be used to do new things, so no direct concerns need to be addressed. 
+- Look at the example and see if any simplifications could be done by improving the TileLayer API.
 - We could potentially offer some utilities for image data loading and terrain generation - TBD, see WIP work on image data loading in loaders.gl.
