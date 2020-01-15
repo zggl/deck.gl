@@ -57,7 +57,7 @@ function resizeTexture(gl, texture, width, height) {
     height: oldHeight
   });
 
-  texture.delete();
+  // texture.delete();
   return newTexture;
 }
 
