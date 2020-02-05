@@ -66,7 +66,8 @@ export default class App extends PureComponent {
   _renderTile3DLayer() {
     return new Tile3DLayer({
       id: 'tile-3d-layer',
-      _ionAssetId: 43978,
+      // Cairo photogrammetry dataset
+      _ionAssetId: 29328,
       _ionAccessToken: ION_TOKEN,
       pointSize: 2,
       onTilesetLoad: this._onTilesetLoad
@@ -79,15 +80,13 @@ export default class App extends PureComponent {
     const {mapStyle = 'mapbox://styles/uberdata/cive485h000192imn6c6cc8fc'} = this.props;
 
     return (
-      <div>
-        <DeckGL layers={[tile3DLayer]} initialViewState={initialViewState} controller={true}>
-          <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={MAPBOX_TOKEN} preventStyleDiffing />
-        </DeckGL>
-      </div>
+      <DeckGL layers={[tile3DLayer]} initialViewState={initialViewState} controller={true}>
+        <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={MAPBOX_TOKEN} preventStyleDiffing/>
+      </DeckGL>
     );
   }
 }
 
 export function renderToDOM(container) {
-  render(<App />, container);
+  render(<App/>, container);
 }
