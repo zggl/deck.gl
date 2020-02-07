@@ -1,0 +1,30 @@
+{
+  "asset":{"version":"0.0"},
+  "geometricError":437.12508,
+  "nearmapTileScale":2.00000,
+  "root":{
+    "boundingVolume":{"sphere":[-4646953.90691,2553078.60886,-3533304.66138,208.42868]},
+    "refine":"replace",
+    "geometricError":437.12508,
+    "nearmapTileScale":2.00000,
+    "children":[{
+      "boundingVolume":{"sphere":[-4646952.05868,2553078.80348,-3533303.04936,207.79935]},
+      "geometricError":219.41161,
+      "nearmapTileScale":2.00000,
+      "children":[{
+        "boundingVolume":{"sphere":[-4646964.55859,2553071.38673,-3533303.45519,195.11128]},
+        "geometricError":112.16296,
+        "nearmapTileScale":2.00000,
+        "children":[{
+          "boundingVolume":{"sphere":[-4646964.77288,2553077.39236,-3533303.79165,188.77154]},
+          "geometricError":61.66385,
+          "nearmapTileScale":2.00000,
+          "content":{"url":"L05_010000/L05_010000.json"}
+        }],
+        "content":{"url":"L04_01000.b3dm"}
+      }],
+      "content":{"url":"L03_0100.b3dm"}
+    }],
+    "content":{"url":"L02_010.b3dm"}
+  }
+}

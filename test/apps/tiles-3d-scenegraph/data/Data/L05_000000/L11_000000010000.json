@@ -1,0 +1,36 @@
+{
+  "asset":{"version":"0.0"},
+  "geometricError":0.75001,
+  "nearmapTileScale":2.00000,
+  "root":{
+    "boundingVolume":{"sphere":[-4646838.39651,2553027.60886,-3533559.35681,44.15226]},
+    "refine":"replace",
+    "geometricError":0.75001,
+    "nearmapTileScale":2.00000,
+    "children":[{
+      "boundingVolume":{"sphere":[-4646826.59547,2553044.09344,-3533551.05154,22.11321]},
+      "geometricError":0.37499,
+      "nearmapTileScale":2.00000,
+      "children":[{
+        "boundingVolume":{"sphere":[-4646826.56609,2553044.11067,-3533551.05232,22.07890]},
+        "geometricError":0.18749,
+        "nearmapTileScale":2.00000,
+        "content":{"url":"L13_00000001000000.b3dm"}
+      }],
+      "content":{"url":"L12_0000000100000.b3dm"}
+    },
+    {
+      "boundingVolume":{"sphere":[-4646845.36550,2553012.39741,-3533559.44858,29.38010]},
+      "geometricError":0.37501,
+      "nearmapTileScale":2.00000,
+      "children":[{
+        "boundingVolume":{"sphere":[-4646845.39284,2553012.40942,-3533559.46446,29.31889]},
+        "geometricError":0.18749,
+        "nearmapTileScale":2.00000,
+        "content":{"url":"L13_00000001000010.b3dm"}
+      }],
+      "content":{"url":"L12_0000000100001.b3dm"}
+    }],
+    "content":{"url":"L11_000000010000.b3dm"}
+  }
+}
