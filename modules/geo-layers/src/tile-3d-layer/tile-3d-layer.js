@@ -189,29 +189,23 @@ export default class Tile3DLayer extends CompositeLayer {
       return this._createPointCloudTileLayer(tileHeader);
     case 'i3dm':
     case 'b3dm':
-      return this._createMeshLayer(tileHeader);
+      return this._createMeshLayerLngLat(tileHeader);
     default:
       throw new Error(`Tile3DLayer: Failed to render layer of type ${tileHeader.content.type}`);
     }
   }
 
-  _createMeshLayer(tileHeader) {
+  _createMeshLayerLngLat(tileHeader) {
     const {viewport} = this.context;
     if (!viewport) {
       return null;
     }
-    const {gltf, cartographicOrigin, cartesianModelMatrix, modelMatrix} = tileHeader.content;
-    console.log(tileHeader)
-    if (!cartographicOrigin) {
-      console.log('no origin', tileHeader);
-      return null;
-    }
-
+    const {gltf, cartesianModelMatrix} = tileHeader.content;
     const primitives = gltf.scene.nodes[0].children[0].mesh.primitives;
     const {matrix} = gltf.scene.nodes[0];
 
     let composedMatrix = new Matrix4();
-    if (modelMatrix) {
+    if (cartesianModelMatrix) {
       composedMatrix = composedMatrix.multiplyRight(cartesianModelMatrix);
     }
     if (matrix) {
@@ -224,12 +218,11 @@ export default class Tile3DLayer extends CompositeLayer {
       const positions = new Float32Array(attributes.POSITION.value.length);
       for (let i = 0; i < positions.length; i += 3) {
         scratchOffset.copy(composedMatrix.transform(attributes.POSITION.value.subarray(i, i + 3)));
-        // scratchOffset
         Ellipsoid.WGS84.cartesianToCartographic(scratchOffset, scratchOffset);
         positions.set(scratchOffset, i);
       }
-      const texCoords = attributes.TEXCOORD_0.value;
 
+      const texCoords = attributes.TEXCOORD_0.value;
       const geometry = new Geometry({
         drawMode: GL.TRIANGLES,
         attributes: {
