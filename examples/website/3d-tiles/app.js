@@ -45,10 +45,11 @@ export default class App extends PureComponent {
   }
 
   async _loadIonData() {
-    const {url, headers} = await getIonTilesetMetadata(ION_ACCESS_ID, ION_TOKEN);
+    const metadata = await getIonTilesetMetadata(ION_ACCESS_ID, ION_TOKEN);
+    const {url} = metadata;
     this.setState({
-      data: url,
-      headers
+      dataUrl: url,
+      metadata
     });
   }
 
@@ -57,8 +58,7 @@ export default class App extends PureComponent {
     this.setState({attributions: tileset.credits.attributions});
     this._centerViewOnTileset(tileset);
     if (this.props.updateAttributions) {
-      console.log(this.props.updateAttributions)
-      this.props.updateAttributions(attributions);
+      this.props.updateAttributions(metadata.attributions);
     }
   }
 
@@ -80,7 +80,7 @@ export default class App extends PureComponent {
   }
 
   _renderTile3DLayer() {
-    const {dataUrl, headers} = this.state;
+    const {dataUrl, metadata} = this.state;
     if (!dataUrl) {
       return null;
     }
@@ -90,7 +90,7 @@ export default class App extends PureComponent {
       data: dataUrl,
       loader: Tiles3DLoader,
       loadOptions: {
-        headers
+        headers: metadata.headers
       },
       onTilesetLoad: this._onTilesetLoad
     });
