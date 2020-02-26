@@ -7,10 +7,13 @@ import {Tile3DLayer} from '@deck.gl/geo-layers';
 import {registerLoaders} from '@loaders.gl/core';
 // To manage dependencies and bundle size, the app must decide which supporting loaders to bring in
 import {DracoWorkerLoader} from '@loaders.gl/draco';
+import {Tiles3DLoader, _getIonTilesetMetadata as getIonTilesetMetadata} from '@loaders.gl/3d-tiles';
 
 registerLoaders([DracoWorkerLoader]);
 // Set your mapbox token here
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+
+const ION_ACCESS_ID = 43978;
 const ION_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWMxMzcyYy0zZjJkLTQwODctODNlNi01MDRkZmMzMjIxOWIiLCJpZCI6OTYyMCwic2NvcGVzIjpbImFzbCIsImFzciIsImdjIl0sImlhdCI6MTU2Mjg2NjI3M30.1FNiClUyk00YH_nWfSGpiQAjR5V2OvREDq1PJ5QMjWQ';
 
@@ -37,12 +40,25 @@ export default class App extends PureComponent {
     this._onTilesetLoad = this._onTilesetLoad.bind(this);
   }
 
+  componentDidMount() {
+    this._loadIonData();
+  }
+
+  async _loadIonData() {
+    const {url, headers} = await getIonTilesetMetadata(ION_ACCESS_ID, ION_TOKEN);
+    this.setState({
+      data: url,
+      headers
+    });
+  }
+
   // Called by Tile3DLayer when a new tileset is loaded
   _onTilesetLoad(tileset) {
     this.setState({attributions: tileset.credits.attributions});
     this._centerViewOnTileset(tileset);
     if (this.props.updateAttributions) {
-      this.props.updateAttributions(tileset.credits.attributions);
+      console.log(this.props.updateAttributions)
+      this.props.updateAttributions(attributions);
     }
   }
 
@@ -64,11 +80,18 @@ export default class App extends PureComponent {
   }
 
   _renderTile3DLayer() {
+    const {dataUrl, headers} = this.state;
+    if (!dataUrl) {
+      return null;
+    }
     return new Tile3DLayer({
       id: 'tile-3d-layer',
-      _ionAssetId: 43978,
-      _ionAccessToken: ION_TOKEN,
       pointSize: 2,
+      data: dataUrl,
+      loader: Tiles3DLoader,
+      loadOptions: {
+        headers
+      },
       onTilesetLoad: this._onTilesetLoad
     });
   }

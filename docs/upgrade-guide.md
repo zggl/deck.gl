@@ -1,5 +1,14 @@
 # Upgrade Guide
 
+## Upgrading from deck.gl v8.0 to v8.1
+
+### Breaking Changes
+
+##### Tile3DLayer
+
+`_ionAccessId` and `_ionAccesToken` are removed. To render an ion dataset with `Tile3DLayer`, pass the ion dataset url to prop `data`, and `loadOptions.headers` with Cesium authentication token. 
+`@loaders.gl/3d-tiles` provide a handy method `_getIonTilesetMetadata` to resolve the url and headers.
+
 ## Upgrading from deck.gl v7.x to v8.0
 
 ### Breaking Changes
