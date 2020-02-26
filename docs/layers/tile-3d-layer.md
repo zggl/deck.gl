@@ -11,14 +11,36 @@ References
 ```js
 import React, {Component} from 'react';
 import DeckGL from '@deck.gl/react';
+import {Tiles3DLoader, _getIonTilesetMetadata as getIonTilesetMetadata} from '@loaders.gl/3d-tiles';
 import {Tile3DLayer} from '@deck.gl/geo-layers';
 
 export default class App extends Component {
+    componentDidMount() { 
+      this._loadIonData();
+    }
+  
+    async _loadIonData() {
+      // https://cesium.com/docs/tutorials/rest-api/
+      const metadata = await getIonTilesetMetadata(ionAssetId, ionAccessToken);
+      const {url} = metadata;
+      this.setState({
+        dataUrl: url,
+        metadata
+      });
+    } 
 
   render() {
+    const {dataUrl, metadata} = this.state;
+    if (!dataUrl) {
+      return null;
+    }
     const layer = new Tile3DLayer({
       id: 'tile-3d-layer',
-      data: '<path-to-your-tileset json file>',
+      data: dataUrl,
+      loader: Tiles3DLoader,
+      loadOptions: {
+        headers: metadata.headers
+      },
       onTilesetLoad: (tileset) => {
         // Recenter to cover the tileset
         const {cartographicCenter, zoom} = tileset;
@@ -100,11 +122,6 @@ This value is only applied when [tile format](https://github.com/AnalyticalGraph
 
 - A URL to fetch tiles entry point [Tileset JSON](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification#tileset-json) file or json object of tileset.
 
-##### `_ionAssetId` (Number|String, Optional)
-##### `_ionAccessToken` (String, Optional)
-
-- `_ionAssetId` and `_ionAccessToken` are used to fetch ion dataset. They are experimental properties, may change in next releases. 
-
 [Set up Ion account](https://cesium.com/docs/tutorials/getting-started/#your-first-app);
 
 ##### `loadOptions` (Object, Optional)
@@ -113,11 +130,14 @@ This value is only applied when [tile format](https://github.com/AnalyticalGraph
 
 Tile3DLayer constructs a [`Tileset3D`](https://loaders.gl/modules/3d-tiles/docs/api-reference/tileset-3d) object after fetching tilset json file. `loadOptions` is an experimental prop to provide Tileset options [Tileset3D options](https://loaders.gl/modules/3d-tiles/docs/api-reference/tileset-3d#options). Among these options, `onTileLoad`, `onTileUnload` and `onTileError` should be passed as layer props.
 
+Note: If `headers` are needed to request data from the server, use `loadOptions.headers`.
+
 ```js
 const layer = new Tile3DLayer({
   data: '<path-to-your-tileset json file>',
   loadOptions: {
-    throttleRequests: false
+    throttleRequests: false,
+    headers: {}
   }
 })
 ```
