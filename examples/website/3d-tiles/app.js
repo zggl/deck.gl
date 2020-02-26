@@ -13,7 +13,9 @@ registerLoaders([DracoWorkerLoader]);
 // Set your mapbox token here
 const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
-const ION_ACCESS_ID = 43978;
+const CESIUM_ION_URL = 'https://api.cesium.com/v1/assets';
+const ION_ASSET_ID = 43978;
+const ION_DATA_URL = `${CESIUM_ION_URL}/${ION_ASSET_ID}`;
 const ION_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWMxMzcyYy0zZjJkLTQwODctODNlNi01MDRkZmMzMjIxOWIiLCJpZCI6OTYyMCwic2NvcGVzIjpbImFzbCIsImFzciIsImdjIl0sImlhdCI6MTU2Mjg2NjI3M30.1FNiClUyk00YH_nWfSGpiQAjR5V2OvREDq1PJ5QMjWQ';
 
@@ -45,21 +47,18 @@ export default class App extends PureComponent {
   }
 
   async _loadIonData() {
-    const metadata = await getIonTilesetMetadata(ION_ACCESS_ID, ION_TOKEN);
-    const {url} = metadata;
+    const metadata = await getIonTilesetMetadata(ION_ASSET_ID, ION_TOKEN);
     this.setState({
-      dataUrl: url,
       metadata
     });
+    if (this.props.updateAttributions) {
+      this.props.updateAttributions(metadata.attributions);
+    }
   }
 
   // Called by Tile3DLayer when a new tileset is loaded
   _onTilesetLoad(tileset) {
-    this.setState({attributions: tileset.credits.attributions});
     this._centerViewOnTileset(tileset);
-    if (this.props.updateAttributions) {
-      this.props.updateAttributions(metadata.attributions);
-    }
   }
 
   // Recenter view to cover the new tileset, with a fly-to transition
@@ -80,17 +79,13 @@ export default class App extends PureComponent {
   }
 
   _renderTile3DLayer() {
-    const {dataUrl, metadata} = this.state;
-    if (!dataUrl) {
-      return null;
-    }
     return new Tile3DLayer({
       id: 'tile-3d-layer',
       pointSize: 2,
-      data: dataUrl,
+      data: ION_DATA_URL,
       loader: Tiles3DLoader,
       loadOptions: {
-        headers: metadata.headers
+        headers: {Authentication: `Bearer ${ION_TOKEN}`}
       },
       onTilesetLoad: this._onTilesetLoad
     });

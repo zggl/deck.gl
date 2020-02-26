@@ -1,7 +1,7 @@
 # Tile3DLayer (Experimental)
 
 The `Tile3DLayer` renders tileset data formatted according to the [3D Tiles Specification](https://www.opengeospatial.org/standards/3DTiles),
-which is supported by the [Tileset3DLoader](https://loaders.gl/modules/3d-tiles/docs/api-reference/tileset-3d-loader).
+which is supported by the [Tiles3DLoader](https://loaders.gl/modules/3d-tiles/docs/api-reference/tileset-3d-loader).
 
 Tile3DLayer is a [CompositeLayer](/docs/api-reference/composite-layer.md). Base on each tile content [format](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification#introduction), it uses either a [PointCloudLayer](/docs/layers/point-cloud-layer.md) or [ScenegraphLayer](/docs/layers/scenegraph-layer.md) to render.
 
@@ -11,24 +11,10 @@ References
 ```js
 import React, {Component} from 'react';
 import DeckGL from '@deck.gl/react';
-import {Tiles3DLoader, _getIonTilesetMetadata as getIonTilesetMetadata} from '@loaders.gl/3d-tiles';
+import {Tiles3DLoader} from '@loaders.gl/3d-tiles';
 import {Tile3DLayer} from '@deck.gl/geo-layers';
 
 export default class App extends Component {
-    componentDidMount() { 
-      this._loadIonData();
-    }
-  
-    async _loadIonData() {
-      // https://cesium.com/docs/tutorials/rest-api/
-      const metadata = await getIonTilesetMetadata(ionAssetId, ionAccessToken);
-      const {url} = metadata;
-      this.setState({
-        dataUrl: url,
-        metadata
-      });
-    } 
-
   render() {
     const {dataUrl, metadata} = this.state;
     if (!dataUrl) {
@@ -36,10 +22,11 @@ export default class App extends Component {
     }
     const layer = new Tile3DLayer({
       id: 'tile-3d-layer',
-      data: dataUrl,
+      data: 'https://api.cesium.com/v1/assets/49378',
       loader: Tiles3DLoader,
+      // https://cesium.com/docs/rest-api/
       loadOptions: {
-        headers: metadata.headers
+        headers: {Authentication: `Bear <ion-access-token>`} 
       },
       onTilesetLoad: (tileset) => {
         // Recenter to cover the tileset
@@ -166,13 +153,13 @@ When [`picking`](/docs/developer-guide/custom-layers/picking.md) is enabled, `in
 
 ##### `onTileLoad` (Function, optional)
 
-`onTileLoad` is a function that is called when a tile in the tileset hierarchy is loaded. [Tile3DHeader](https://github.com/uber-web/loaders.gl/blob/master/docs/api-reference/3d-tiles/tileset-3d.md#root--tile3dheader) object is passed in the callback.
+`onTileLoad` is a function that is called when a tile in the tileset hierarchy is loaded. [Tile3D](https://github.com/uber-web/loaders.gl/blob/master/docs/api-reference/tiles/tile-3d.md) object is passed in the callback.
 
 - Default: `onTileLoad: (tileHeader) => {}`
 
 ##### `onTileUnload` (Function, optional)
 
-`onTileUnload` is a function that is called when a tile is unloaded. [Tile3DHeader](https://github.com/uber-web/loaders.gl/blob/master/docs/api-reference/3d-tiles/tileset-3d.md#root--tile3dheader) object is passed in the callback.
+`onTileUnload` is a function that is called when a tile is unloaded. [Tile3D](https://github.com/uber-web/loaders.gl/blob/master/docs/api-reference/tiles/tileset-3d.md#root--tile3dheader) object is passed in the callback.
 
 - Default: `onTileUnload: (tileHeader) => {}`
 
