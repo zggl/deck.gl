@@ -1,7 +1,7 @@
 # Tile3DLayer (Experimental)
 
 The `Tile3DLayer` renders 3d tiles data formatted according to the [3D Tiles Specification](https://www.opengeospatial.org/standards/3DTiles) and [`ESRI I3S`](https://github.com/Esri/i3s-spec) ,
-which is supported by the [Tiles3DLoader](https://loaders.gl/modules/3d-tiles/docs/api-reference/tileset-3d-loader).
+which is supported by the [Tiles3DLoader](https://loaders.gl/modules/3d-tiles/docs/api-reference/tiles-3d-loader).
 
 Tile3DLayer is a [CompositeLayer](/docs/api-reference/composite-layer.md). Base on each tile type, it uses a [PointCloudLayer](/docs/layers/point-cloud-layer.md), a [ScenegraphLayer](/docs/layers/scenegraph-layer.md) or [SimpleMeshLayer](/docs/layers/simple-mesh-layer.md) to render.
 
@@ -9,6 +9,7 @@ References
 - [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification).
 - [ESRI I3S](https://github.com/Esri/i3s-spec)
 
+* Load a 3D tiles dataset from ION server. [Set up Ion account](https://cesium.com/docs/tutorials/getting-started/#your-first-app);
 ```js
 import React, {Component} from 'react';
 import DeckGL from '@deck.gl/react';
@@ -23,7 +24,7 @@ export default class App extends Component {
       loader: Tiles3DLoader,
       // https://cesium.com/docs/rest-api/
       loadOptions: {
-        headers: {Authentication: `Bear <ion-access-token>`} 
+        headers: {Authentication: `Bearer <your_ion_access_token>`} 
       },
       onTilesetLoad: (tileset) => {
         // Recenter to cover the tileset
@@ -105,8 +106,6 @@ This value is only applied when [tile format](https://github.com/AnalyticalGraph
 * Default: null
 
 - A URL to fetch tiles entry point [Tileset JSON](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification#tileset-json) file or json object of tileset.
-
-[Set up Ion account](https://cesium.com/docs/tutorials/getting-started/#your-first-app);
 
 ##### `loadOptions` (Object, Optional)
 
