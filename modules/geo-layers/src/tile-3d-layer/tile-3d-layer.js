@@ -148,14 +148,14 @@ export default class Tile3DLayer extends CompositeLayer {
     }
 
     switch (tileHeader.type) {
-    case TILE_TYPE.POINTCLOUD:
-      return this._createPointCloudTileLayer(tileHeader);
-    case TILE_TYPE.SCENEGRAPH:
-      return this._create3DModelTileLayer(tileHeader);
-    case TILE_TYPE.SIMPLEMESH:
-      return this._createSimpleMeshLayer(tileHeader);
-    default:
-      throw new Error(`Tile3DLayer: Failed to render layer of type ${tileHeader.content.type}`);
+      case TILE_TYPE.POINTCLOUD:
+        return this._createPointCloudTileLayer(tileHeader);
+      case TILE_TYPE.SCENEGRAPH:
+        return this._create3DModelTileLayer(tileHeader);
+      case TILE_TYPE.SIMPLEMESH:
+        return this._createSimpleMeshLayer(tileHeader);
+      default:
+        throw new Error(`Tile3DLayer: Failed to render layer of type ${tileHeader.content.type}`);
     }
   }
 
@@ -252,8 +252,6 @@ export default class Tile3DLayer extends CompositeLayer {
     const SubLayerClass = this.getSubLayerClass('simplemesh', SimpleMeshLayer);
 
     return new SubLayerClass(
-      {
-      },
       this.getSubLayerProps({
         id: 'simplemesh'
       }),
