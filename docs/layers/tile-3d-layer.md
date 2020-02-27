@@ -1,12 +1,13 @@
 # Tile3DLayer (Experimental)
 
-The `Tile3DLayer` renders tileset data formatted according to the [3D Tiles Specification](https://www.opengeospatial.org/standards/3DTiles),
+The `Tile3DLayer` renders 3d tiles data formatted according to the [3D Tiles Specification](https://www.opengeospatial.org/standards/3DTiles) and [`ESRI I3S`](https://github.com/Esri/i3s-spec) ,
 which is supported by the [Tiles3DLoader](https://loaders.gl/modules/3d-tiles/docs/api-reference/tileset-3d-loader).
 
-Tile3DLayer is a [CompositeLayer](/docs/api-reference/composite-layer.md). Base on each tile content [format](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification#introduction), it uses either a [PointCloudLayer](/docs/layers/point-cloud-layer.md) or [ScenegraphLayer](/docs/layers/scenegraph-layer.md) to render.
+Tile3DLayer is a [CompositeLayer](/docs/api-reference/composite-layer.md). Base on each tile type, it uses a [PointCloudLayer](/docs/layers/point-cloud-layer.md), a [ScenegraphLayer](/docs/layers/scenegraph-layer.md) or [SimpleMeshLayer](/docs/layers/simple-mesh-layer.md) to render.
 
 References
 - [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification).
+- [ESRI I3S](https://github.com/Esri/i3s-spec)
 
 ```js
 import React, {Component} from 'react';
@@ -16,10 +17,6 @@ import {Tile3DLayer} from '@deck.gl/geo-layers';
 
 export default class App extends Component {
   render() {
-    const {dataUrl, metadata} = this.state;
-    if (!dataUrl) {
-      return null;
-    }
     const layer = new Tile3DLayer({
       id: 'tile-3d-layer',
       data: 'https://api.cesium.com/v1/assets/49378',
@@ -178,6 +175,7 @@ The Tile3DLayer renders the following sublayers based on tile [format](https://g
 * `scenegraph` - a [ScenegraphLayer](/docs/layers/scenegraph-layer.md) rendering all the tiles with Batched 3D Model format (`b3dm`) or Instanced 3D Model format (`i3dm`).
   - `_lighting` is default to `pbr`.
 * `pointcloud` - a [PointCloudLayer](/docs/layers/point-cloud-layer.md) rendering all the tiles with Point Cloud format (`pnts`).
+* `simplemesh` - a [SimpleMeshLayer](/docs/layers/simple-mesh-layer.md) rendering all the tiles ESRI `MeshPyramids` data.
 
 Follow [CompositeLayer](/docs/api-reference/composite-layer.md#_subLayerProp) and example in this layer doc to see how to override sub layer props.
 
