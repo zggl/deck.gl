@@ -29,6 +29,7 @@ export default class Tile3DLayer extends CompositeLayer {
     if ('onTileLoadFail' in this.props) {
       log.removed('onTileLoadFail', 'onTileError')();
     }
+    log.assert(this.props.loader, 'Should provide `loader` prop. ');
     // prop verification
     this.state = {
       layerMap: {},
@@ -67,11 +68,12 @@ export default class Tile3DLayer extends CompositeLayer {
   async _loadTileset(tilesetUrl) {
     const {loader, loadOptions} = this.props;
     const tilesetJson = await load(tilesetUrl, loader, loadOptions);
+
     const tileset3d = new Tileset3D(tilesetJson, {
       onTileLoad: this._onTileLoad.bind(this),
       onTileUnload: this.props.onTileUnload,
       onTileLoadFail: this.props.onTileError,
-      fetchOptions: loadOptions
+      ...loadOptions
     });
 
     this.setState({
@@ -94,51 +96,10 @@ export default class Tile3DLayer extends CompositeLayer {
     if (!timeline || !viewport || !tileset3d) {
       return;
     }
-    tileset3d.update(viewport);
-  }
-
-  // `Layer` instances is created and added to the map if it doesn't exist yet.
-  _updateLayerMap() {
-    const {tileset3d, layerMap} = this.state;
-
-    // create layers for new tiles
-    const {tiles} = tileset3d;
-    const tilesWithoutLayer = tiles.filter(tile => tile.selected && !layerMap[tile.id]);
-
-    for (const tile of tilesWithoutLayer) {
-      layerMap[tile.id] = {
-        layer: this._create3DTileLayer(tile),
-        tile
-      };
-    }
-
-    // update layer visibility
-    this._updateLayers();
-  }
-
-  // Grab only those layers who were selected this frame.
-  _updateLayers() {
-    const {layerMap} = this.state;
-    const layerMapValues = Object.values(layerMap);
-
-    for (const value of layerMapValues) {
-      const {tile} = value;
-      let {layer} = value;
-
-      if (tile.selected) {
-        if (layer && layer.props && !layer.props.visible) {
-          // Still has GPU resource but visibility is turned off so turn it back on so we can render it.
-          layer = layer.clone({visible: true});
-          layerMap[tile.id].layer = layer;
-        }
-      } else if (tile.contentUnloaded) {
-        // Was cleaned up from tileset cache. We no longer need to track it.
-        delete layerMap[tile.id];
-      } else if (layer && layer.props && layer.props.visible) {
-        // Still in tileset cache but doesn't need to render this frame. Keep the GPU resource bound but don't render it.
-        layer = layer.clone({visible: false});
-        layerMap[tile.id].layer = layer;
-      }
+    const frameNumber = tileset3d.update(viewport);
+    const tilesetChanged = this.state.frameNumber !== frameNumber;
+    if (tilesetChanged) {
+      this.setState({frameNumber});
     }
   }
 
@@ -152,7 +113,7 @@ export default class Tile3DLayer extends CompositeLayer {
         return this._createPointCloudTileLayer(tileHeader);
       case TILE_TYPE.SCENEGRAPH:
         return this._create3DModelTileLayer(tileHeader);
-      case TILE_TYPE.SIMPLEMESH:
+      case TILE_TYPE.MESH:
         return this._createSimpleMeshLayer(tileHeader);
       default:
         throw new Error(`Tile3DLayer: Failed to render layer of type ${tileHeader.content.type}`);
@@ -249,15 +210,16 @@ export default class Tile3DLayer extends CompositeLayer {
       }
     });
 
-    const SubLayerClass = this.getSubLayerClass('simplemesh', SimpleMeshLayer);
+    const SubLayerClass = this.getSubLayerClass('mesh', SimpleMeshLayer);
 
     return new SubLayerClass(
       this.getSubLayerProps({
-        id: 'simplemesh'
+        id: 'mesh'
       }),
       {
-        id: `${this.id}-simplemesh-${tileHeader.id}`,
+        id: `${this.id}-mesh-${tileHeader.id}`,
         mesh: geometry,
+        modelMatrix,
         data: [{}],
         getPosition: [0, 0, 0],
         getColor: [255, 255, 255],
@@ -273,8 +235,41 @@ export default class Tile3DLayer extends CompositeLayer {
     if (!tileset3d) {
       return null;
     }
-    this._updateLayerMap();
-    return Object.values(layerMap).map(layer => layer.layer);
+
+    return tileset3d.tiles
+      .map(tile => {
+        if (tile.contentUnloaded) {
+          // Was cleaned up from tileset cache. We no longer need to track it.
+          delete layerMap[tile.id];
+          return null;
+        }
+
+        let layer = layerMap[tile.id] && layerMap[tile.id].layer;
+        // render selected tiles
+        if (tile.selected) {
+          // create layer
+          if (!layer) {
+            layer = this._create3DTileLayer(tile);
+            layerMap[tile.id] = {layer, tile};
+          }
+          // update layer visibility
+          if (layer && layer.props && !layer.props.visible) {
+            // Still has GPU resource but visibility is turned off so turn it back on so we can render it.
+            layer = layer.clone({visible: true});
+            layerMap[tile.id].layer = layer;
+          }
+          return layer;
+        }
+
+        // hide non-selected tiles
+        if (layer && layer.props && layer.props.visible) {
+          // Still in tileset cache but doesn't need to render this frame. Keep the GPU resource bound but don't render it.
+          layer = layer.clone({visible: false});
+          layerMap[tile.id].layer = layer;
+        }
+        return layer;
+      })
+      .filter(Boolean);
   }
 }
 
