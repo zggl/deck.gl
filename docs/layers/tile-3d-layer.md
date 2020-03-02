@@ -105,7 +105,7 @@ This value is only applied when [tile format](https://github.com/AnalyticalGraph
 
 * Default: null
 
-- A URL to fetch tiles entry point [Tileset JSON](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification#tileset-json) file or json object of tileset.
+- A URL to fetch tiles entry point of `3D Tiles` [Tileset JSON](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification#tileset-json) file or `Indexed 3D Scene Layer` file [I3S](https://github.com/Esri/i3s-spec).
 
 ##### `loadOptions` (Object, Optional)
 

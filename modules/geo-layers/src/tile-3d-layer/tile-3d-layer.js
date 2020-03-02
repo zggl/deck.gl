@@ -219,7 +219,6 @@ export default class Tile3DLayer extends CompositeLayer {
       {
         id: `${this.id}-mesh-${tileHeader.id}`,
         mesh: geometry,
-        modelMatrix,
         data: [{}],
         getPosition: [0, 0, 0],
         getColor: [255, 255, 255],
